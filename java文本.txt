@@ -1,0 +1,5256 @@
+1、系统先执行定义时赋的，后执行构造函数中赋的值
+class B
+{
+	public int i = 2;
+	public boolean flag = true;
+	
+	public void f()
+	{
+		System.out.printf("i = %d\n",i);
+		System.out.printf("flag = %b\n",flag);
+	}
+	public  B(int j ,boolean f)//2个形参的构造函数
+	{
+		i = j;//把形参j赋给i
+		flag = f;
+	}
+	
+	public void show()
+	{
+		System.out.printf("i = %d\n",i);
+		System.out.printf("flag = %b\n",flag);
+	}
+}
+
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		//B bb = new B(3,false);//赋值形参为3，false
+		//bb.f();
+		//bb.show();
+		new B(3,false).f();
+		//相当于该语句，因为调用f方法需要构造对象，所以已经执行了形参赋值
+	}
+}
+2、bb1 = bb2;的含义
+class B
+{
+	public int i ;
+	
+	public  B(int j)
+	{
+		i = j;
+	}
+	
+	public void show()
+	{
+		System.out.printf("i = %d\n",i);//i 相当于 this.i
+	}
+}
+
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		B bb1 = new B(10);
+		B bb2 = new B(20);
+		bb1 = bb2;//bb1也指向bb2所指向的内容，而bb1和bb2并不一样(内存不同)
+		bb1.show();
+		bb2.show();
+	}
+}
+3、this的作用
+//静态方法中不能用this
+class B
+{
+
+	public int i = 3;
+	
+	public  B(int i)//如果形参名和局部变量名一样的话需要用this指针
+	{
+		this.i = i;//i相当于构造函数的形参
+		//this.i相当于局部变量int i
+		//this 代表当前正在创建的对象
+		System.out.printf("i = %d\n",i);
+	}	
+}
+
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		B bb = new B(2);
+		System.out.printf("i = %d",bb.i); 
+	}
+}
+4、static的用法
+//为了让类的所有对象在类的范围内共享某个成员，可以用static将该成员定义为属于类而不属于某个对象
+public class B 
+{
+	public static int i;
+	
+	public void show()//非静态方法可以访问静态的i
+	{
+		System.out.printf("i = %d\n",i);
+	}	
+}
+
+class M
+{
+	public static void main(String[] args)
+	{
+		B bb1 = new B();
+		B bb2 = new B();
+		bb1.i = 10;
+		bb2.show();
+		System.out.printf("i = %d\n",B.i); //可以用类名直接访问静态属性
+		System.out.printf("i = %d\n",bb2.i); //可以用类名直接访问静态属性，静态方法
+	}
+}
+5、求对象个数
+public class B 
+{
+	private int i;
+	private static int cnt = 0;//静态的（static）保证n个对象用一个cnt
+	
+	public B()//无参的
+	{
+		++cnt;
+	}
+	public B(int i)//有参的
+	{
+		//this.i = i;
+		++cnt;
+	}
+	public B(int i, int j)
+	{
+		++cnt;
+	}
+	public static int getCnt()//静态的公有的，能通过类名直接调用它
+	{
+		return cnt;
+	}	
+}
+
+class M
+{
+	public static void main(String[] args)
+	{
+		System.out.printf("%d\n",B.getCnt());
+		B bb1 = new B();
+		System.out.printf("%d\n",B.getCnt());
+		B bb2 = new B(2);
+		System.out.printf("%d\n",B.getCnt());
+		B bb3 = new B(2,3);
+		System.out.printf("%d\n",B.getCnt());
+	}
+}
+
+6、B这个类只能造一个事物
+public class B 
+{
+	public int i = 20;
+	private static B bb = new B();
+	
+	private B()//禁止了new出新的对象
+	{
+	}
+	
+	public static B getB()//static一定不能省略，非静态的方法要访问问静态的属性bb
+	{
+		return bb;
+	}
+}
+
+class M
+{
+	public static void main(String[] args)
+	{
+		B bb1 = B.getB();
+		B bb2 = B.getB();
+		
+		bb1.i = 10;
+		System.out.printf("bb1.i = %d\nbb2.i = %d\n",bb1.i,bb2.i);
+	}
+	
+}
+7、static的简单用法
+public class B 
+{
+	public static int i = 20;
+	
+	public B(int a)
+	{
+		i = a;
+	}
+	public  void show()
+	{
+		System.out.printf("i = %d\n",i);
+	}
+}
+
+class M
+{
+	public static void main(String[] args)
+	{
+		B bb = new B(2);
+		bb.show();
+		System.out.printf("i = %d\n",B.i);
+	}
+}	
+8、super的用法
+public class B 
+{
+	public  int i;
+	public  int j;
+	
+	public B(int a,int b)
+	{
+		i = a;
+		j = b;
+	}
+}
+
+class A extends B
+{
+	public int k;
+	
+	public A (int a,int b,int c)
+	{
+		super(a,b);//super只能为第一条语句，不能用多次super;而且只能在构造方法中，调用父类的构造方法，此处代表有2个参数的
+		k = c;//不写明super的话默认为super()也就是继承父类无参的构造方法，而如果父类没有无参的构造方法会报错，因此父类在写新的有参构造方法之前，可以先写个无参的
+//还可以用super.父类对象，或super.父类方法来调用父类的属性和方法等
+	}
+}
+
+class M
+{
+	public static void main(String[] args)
+	{
+		A aa = new A(1,2,3);
+		
+		System.out.printf("i = %d\n",aa.i);
+	}
+}
+9、多态的简单应用
+public class B 
+{
+	public void f()
+	{
+		System.out.printf("AAAAA\n");
+	}
+}
+
+class A extends B
+{
+	public void f()//与父类中的方法f必须同名同返回值
+	{
+		System.out.printf("BBBBB\n");
+	}
+}
+
+class M
+{
+	public static void main(String[] args)
+	{
+		B bb = new B();
+		A aa = new A();
+		//aa = bb;不能把父类当成子类表示
+		bb = aa;//多态
+		
+		bb.f();//输出为A类中的BBBBB
+	}
+}
+10、多态的应用——输出子类族的调用父类的方法
+public class B 
+{
+	public void f()
+	{
+		System.out.printf("AAAAA\n");
+	}
+}
+
+class A extends B
+{
+	public void f()
+	{
+		System.out.printf("BBBBB\n");
+	}
+}
+class C extends A 
+{
+	public void f()
+	{
+		System.out.printf("CCCCC\n");
+	}
+}
+
+class M
+{
+	public static void g(B bb)//还可以扩充class D......都能输出子类族，static如果去掉的话，下面main函数静态的不能调用非静态的会报错
+	{
+		bb.f();//相当于(*bb).f()
+	}
+	public static void main(String[] args)
+	{
+		B bb = new B();
+		A aa = new A();
+		C cc = new C();
+		
+		g(bb);
+		g(aa);
+		g(cc);
+	}
+}
+11、多态的用法
+public class B 
+{
+	public void f()
+	{
+		System.out.printf("AAAAA\n");
+	}
+}
+
+class A extends B
+{
+	public void f()
+	{
+		System.out.printf("BBBBB\n");
+	}
+	public void g()
+	{
+		System.out.printf("GGGG\n");
+	}
+}
+
+class M
+{
+
+	public static void main(String[] args)
+	{
+		B bb = new B();
+		A aa = new A();
+
+		bb = aa;
+		bb.f();//输出相当于aa.f()，因为上一行bb = aa;把aa当作bb
+		//bb.g();//不能调用子类特有的方法
+	}
+}
+
+12、抽象类
+abstract public class B 
+{
+	abstract public void f();//抽象方法必须在抽象类中,抽象方法没有方法主体
+	public void g()
+	{
+		System.out.printf("BBBBB\n");
+	}
+}
+
+class A extends B
+{
+	public void f()//继承父类的方法重写时，级别不能低，所以public不能省略
+	{
+		System.out.printf("AAAAA\n");
+	}
+}
+
+class M
+{
+	public static void main(String[] args)
+	{
+		//B bb = new B();抽象类不能造对象
+		B bb;//能定义抽象类的引用
+		
+		A aa = new A();
+		aa.f();
+		
+		bb = aa;
+		bb.f();//抽象类中的多态知识
+		bb.g();
+	}
+}
+13、final的用法
+final public class B
+{
+	 final int i;//final 修饰变量时，被认为是常变量，初始化后就不能更改
+	
+	 /*public B()//可以通过构造函数初始化，也可以定义的时候初始化，总之不能更改
+	 {
+		 System.out.printf("i = %d",i);//而且必须被初始化，否则报错
+	 }*/
+	 public B(int i)
+	 {
+		 this.i = i;
+		 System.out.printf("i = %d",i);
+	 }
+}
+/*class A extends B//final修饰类的话，该类不能被继承
+{
+	public A()
+	{
+		
+	}
+}*/
+
+class M
+{
+	public static void main(String[] args)
+	{
+		B bb = new B(2);
+	}
+}
+*14、接口相关知识（怎么实现抽象类A中的g方法）
+public class B
+{
+	int i = 2;
+	
+	public B()//构造函数void可以省略，否则没法输出
+	{
+		System.out.printf("BBBB\n");
+	}
+}
+
+interface It
+{
+	//int j;接口中定义的变量类型默认为public static final所以必须初始化
+	int j = 5;
+	void g();//接口中定义的方法默认为public abstract(没有方法主体),但修饰词可以省略
+}
+
+interface It2
+{	
+	void k();
+}
+
+interface It3 extends It,It2//接口可以多继承
+{
+	
+}
+//class A extends It3类不可以继承接口
+//类A只实现以上接口中的g方法，并不是全部方法，所以类必须定义为抽象的
+abstract class A extends B implements It3//类只能实现接口,并且只能先继承类再实现接口
+{     
+	//abstract public void g();public不能省略，因为15行接口中的g方法默认为public不能降低级别
+	public void g()
+	{
+		System.out.printf("AAAAA\n");
+	}
+}
+
+
+class M
+{
+	public static void main(String[] args)
+	{
+		//A aa = new A();抽象类不能生成对象
+        B bb = new B();//分配空间时，构造函数自动执行，不用写bb.B();
+	}
+}
+15、接口续
+public class B
+{
+	int i = 10;
+	
+	public B()
+	{
+		System.out.printf("i = %d\n",i);
+	}
+}
+
+interface It
+{
+	int j = 5;
+	void g();
+	//void k();如果类A只实现接口中的部分方法，必须定义为abstract类型
+}
+
+class A implements It
+{    //void g()Public不能省略,相当于重写g方法，级别不能降低
+	public void g()
+	{
+		System.out.printf("AAAAA\n");
+	}
+	public void k()
+	{
+		
+	}
+}
+
+class M
+{
+	public static void main(String[] args)
+	{
+		//It it = new It();因为抽象的不能生成对象，接口也一样
+		It it;       //可以定义一个接口引用类型的变量
+        it = new A();//并将其指向实现接口的对象，达到多态的目的
+        it.g();
+        //it.k();只能调用子类从父类继承的成员，不能调用子类特有的
+        
+        /*A aa = new A();
+        aa.g();*/
+        B bb = new B();
+	}
+}
+16、异常基本知识
+class A
+{
+	int show(int a,int b)
+	{
+		int m = 0;//m必须初始化，m = a/b在try语句中不一定会执行，如果不初始化，将会报错
+		
+		try
+		{
+			m = a/b;//try中间写的为判断可能异常的语句
+		}
+		catch(ArithmeticException e)//ArithmeticException表示数值异常
+		{
+                        //e.printStackTrace();可以显示出错的行数，便于进行测试
+			System.out.printf("输入的b不能为零\n");
+		}//try catch 语句相比于if else更便于处理突发事件
+		System.out.printf("m = %d",m);
+		return m;
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		//A aa = new A();
+		//aa.show(6,0);两行代码相当于下面一行代码
+		new A().show(6,0);
+	}
+}
+17、从键盘输入两数字相除
+import java.util.*;//使用java.util这个jar包，*表示使用包内的所有类
+               //也可以只调用其中的scanner
+class A
+{
+	int show()
+	{
+		int a,b;
+		int m = 0;//m必须赋初试值，m=a/b在try语句中，不一定会执行
+		
+		Scanner sc = new Scanner(System.in);//scanner相当于c语言中的scanf
+		System.out.printf("请输入被除数a = ");
+		a = sc.nextInt();//从键盘输入a的方法
+		System.out.printf("请输入被除数b = ");
+		b = sc.nextInt();	
+		
+		try
+		{
+			m = a/b;
+		}
+		catch(ArithmeticException e)
+		{
+			System.out.printf("b不能为零\n");
+		}
+		
+		System.out.printf("m = %d\n",m);
+		return m;
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		new A().show();
+	}
+}
+18、自定义异常并处理
+
+class DiversorIsZeroException extends Throwable//异常必须来自于Throwable这个类
+{
+	public DiversorIsZeroException(String name)//要有构造函数
+	{
+		super(name);        //super的作用？
+	}
+}
+/*super指向父类，用于引用父类的构造方法。
+this指向本类，用于引用本类中的其他方法。*/
+class A
+{
+	public int divide(int a,int b)throws DiversorIsZeroException//定义divide方法
+	{                      //throws就是当前不处理，交给调用divide方法时处理，即31行
+		int m = 0;
+		if(0 == b)
+			throw new DiversorIsZeroException("除数不能为零\n");//抛异常
+		else              //throw+对象      相当于新构造个对象   throw new 异常名(参数);
+			{
+				m = a/b;
+				System.out.printf("m = %d\n",m);
+			}
+		return m;
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args) throws DiversorIsZeroException
+	{
+		A aa = new A();
+		try                //在调用divide方法时进行异常处理
+		{
+			aa.divide(6,0);
+		}
+		catch(DiversorIsZeroException e)
+		{
+			e.printStackTrace(); //显示异常详情
+		}
+	}
+}
+19、以上两例的综合
+import java.util.*;//使用java.util这个jar包，*表示使用包内的所有类
+               //也可以只调用其中的scanner
+class DivsorIsZero extends Throwable//定义除数为0这个异常
+{
+	public DivsorIsZero(String name)
+	{
+		super(name);
+	}
+}
+class A
+{
+	int show() throws DivsorIsZero
+	{
+		int a,b;
+		int m = 0;//m必须赋初试值，m=a/b在try语句中，不一定会执行
+		
+		Scanner sc = new Scanner(System.in);//scanner相当于c语言中的scanf
+		System.out.printf("请输入被除数a = ");
+		a = sc.nextInt();//从键盘输入a的方法
+		System.out.printf("请输入被除数b = ");
+		b = sc.nextInt();	
+		
+		if(0==b)
+			throw new DivsorIsZero("除数不能为零！\n");
+		else
+			{
+				m=a/b;
+				System.out.printf("m = %d\n",m);
+			}
+		return m;
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args) throws DivsorIsZero//别忘了这里也要抛出
+	{
+		A aa = new A();
+		
+		try                        //抛出异常后，在调用show方法时再进行捕获处理
+		{
+			aa.show();
+		}
+		catch(ArithmeticException e)
+		{
+			e.printStackTrace();;
+		}
+	}
+}
+20、//toString 的用法
+class A
+{
+	public String toString(int x,int y)//重写父类Object中的toString方法
+	{
+		return "[" + x + "," + y + "]";
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		A aa = new A();
+		System.out.printf("%s",aa.toString(2,3));
+		//默认继承Object类（不用写extends）其中有toString方法
+	}
+}
+21、equals的用法
+class A
+{
+	public int i;
+	
+	public A(int i)
+	{
+		this.i = i;
+	}
+	
+	public boolean equals(Object obj)//public不能省略，因为父类的equals方法为public不能降级 
+	{
+		A aa = (A)obj;//把obj强制类型转换为A类型的
+		
+		if(this.i==aa.i)//不能写为obj.i，因为父类的方法equals不能调用子类特有的i
+			return true;
+		else
+			return false;
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		A aa1 = new A(2);
+		A aa2 = new A(2);
+		
+		System.out.println(aa1.equals(aa2));//不重写equals的话，一直输出false，不同内存但相同内容
+	}
+}
+22、String中的equals，==，字符常量的知识
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		String str1 = new String("china");
+		String str2 = new String("china");
+		String str3 = "china";
+		String str4 = "china";
+		
+		System.out.println(str1.equals(str2));
+//equals判断的是两者指向的对象的内容是否相同，指向对象的内容都是china所以相等，输出true	
+//String中默认equals方法已经重写了，可以直接用		
+		if(str1 == str2)
+			System.out.printf("str1 == str2\n");
+		else
+			System.out.printf("str1 != str2\n");
+//str1 == str2判断的是str1和str2本身内容是否相同，本身是在栈中动态分配的，所以不相等
+		
+		if(str3 == str4)
+			System.out.printf("str3 == str4\n");
+		else
+			System.out.printf("str3 != str4\n");
+//str3和str4都是定义了字符常量china一样的，所以相等		
+	}
+}
+23、valueOf的简单用法
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		int i = 123;
+		String str = "abc";
+		
+	    str = String.valueOf(i);//把int型的变量i返回为string类型的
+		System.out.printf("%s\n",str);
+		
+		i = Integer.parseInt(str);//把String类型的str返回为int类型的
+		System.out.printf("%d\n",i);
+	}
+}
+24、求一串字符串中小写字母个数，大写字母个数，非字母个数
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		String str = "AabA N12Dc!"; //空格也为非字母
+		int i;
+		int cntU = 0;
+		int cntL = 0;
+		int cntOther = 0;
+		
+		/*方法一：
+		for(i=0;i<str.length();++i)//i从零开始，所以为小于，并不能等于str的长度
+		{
+			char ch = str.charAt(i);//ch为字符串str中的第i个字符
+			if(ch >= 'a'&& ch <='z')
+				cntL++;
+			else if(ch >= 'A'&& ch <='Z')
+				cntU++;
+			else
+				cntOther++;
+		}*/
+		
+		/*方法二：
+		for(i=0;i<str.length();++i)
+		{
+			char ch = str.charAt(i);
+			if(Character.isLowerCase(ch))//Character这个类中的isLowerCase就是判断
+				cntL++;                  //ch是否是小写字母的
+			else if(Character.isUpperCase(ch))
+				cntU++;
+			else
+				cntOther++;
+		}*/
+		
+		/*方法三：
+		String s1 = "abcdefghjklmnopqrstuvwxyz";//罗列出所有大写小写字母
+		String s2 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		
+		for(i = 0;i<str.length();++i)
+		{
+			char ch = str.charAt(i);
+			if(-1 != s1.indexOf(ch))//indexOf返回为出现ch的第一个位置下标，从零开始
+				cntL++;             //如果s1中没有ch则返回-1，返回不为-1说明有小写字母
+			else if(-1 != s2.indexOf(ch))
+				cntU++;
+			else
+				cntOther++;
+		}*/
+		
+		System.out.printf("小写字母个数为：%d个\n",cntL);
+		System.out.printf("大写字母个数为：%d个\n",cntU);
+		System.out.printf("非写字母个数为：%d个\n",cntOther);
+		
+	}
+}//方法一效率高点，因为其它两种方法要调用别的方法
+25、求小段字符串在一大段字符串中出现的次数
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		int i = -1;
+		int cnt = 0;
+		String str1 = "asd";
+		String str2 = "assdbfgsasfdgrdfsdrgrdasdfgr";
+
+//String类中有一个方法：indexOf(String str, int fromIndex)
+//返回从fromIndex开始出现str的位置（下标）
+		i = str2.indexOf(str1);//i返回的是str2中第一次出现str1的位置下标（从零开始）
+		while(-1 != i)//i = -1的话表示str2中一个也没有str1
+		{
+			++cnt;
+			i = str2.indexOf(str1,i + str1.length()); 
+		}//第二次再判断时，从第一次出现的位置加上str1的长度的位置开始判断
+		System.out.printf("str2中的str1字符串的个数为：%d",cnt);
+	}
+}
+26、StringBuffer类
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		StringBuffer sb1 = new StringBuffer("abc");
+		sb1.append("sde");//末尾添加
+		sb1.delete(1, 4);//下标从零开始，左开右闭
+		sb1.reverse();//倒置
+		sb1.insert(2, "sdf");//从2开始插入sdf这个字符串
+		//String str = new String("abc");
+		//str.append("sd");String这个类中没有以上几种方法
+		
+		System.out.println(sb1);
+		System.out.printf("%b,%d,%d",sb1.equals("sdf"),sb1.length(),sb1.indexOf("sd"));
+	//StringBuffer也都有String类中有的方法
+	//输出多个参数用printf更方便
+	}
+}
+27、一维数组
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		int[] arr1 = new int[] {0,1,2};	//一维数组定义并初始化
+		int[] arr2 = new int[] {-1,1,3,-3,4};
+		
+		show(arr1);//必须通过调用方法来输出
+		//System.out.println(arr1);//不能直接println输出数组
+		
+		System.arraycopy(arr1, 1, arr2, 0, 2);//一维数组的copy
+		//表示把arr1从下标为1(即arrp[1])开始的2项，赋给arr2从0开始(即arr2[0])
+		show(arr2);
+	}
+	public static void show(int[] arr)//必须为静态的方法
+	{
+		int i;
+		for(i = 0;i<arr.length;i++)//arr.length不能加括号，加上后变成了方法
+		{
+			System.out.printf("%d ",arr[i]);//arr[i]不是[i]arr
+			//因为int[]表示定义一个一维数组，后面的arr是数组名，调用时还是arr[i]
+		}
+	}
+}
+28、线程的创建
+class B extends Thread
+{
+	public void run()
+	{
+		while(true)
+		{
+			System.out.printf("AAAA\n");
+		}
+	}
+
+}
+
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		//new B().run();//会一直输出AAAA
+		new B().start();//AAAABBBB交替输出(新创建了一个线程)
+//执行start默认执行run方法，并且穿件一个新的线程，而直接执行run方法不会创建线程
+		while(true)
+		{
+			System.out.printf("BBBB\n");
+		}
+	}
+}
+29、一个thread对象不能调用两次start方法
+class B extends Thread
+{
+	public void run()
+	{
+		//while(true)
+		System.out.printf("AAAA\n");
+	}
+	public void g()
+	{
+	}
+}
+
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		B bb = new B();
+		bb.start();
+		bb.start();//会抛出异常
+//但是如果写两次newB().start();因为是两个不同的B对象
+//而且如果run方法为while循环的话，也不会抛出异常
+//因为加上while循环的话，6行代码为死循环，并不会执行19行的第二个start
+		System.out.printf("BBBB\n");
+	}
+}
+30、线程创建的第二种方法
+class B extends Thread
+{
+	public void run()
+	{
+		while(true)
+		{
+			System.out.printf("AAAA\n");
+		}
+	}
+	
+}
+class A
+{
+	
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		B bb = new B();
+		Thread t = new Thread(bb);//别忘了bb否则第5行的while死循环并不会执行
+		//A aa = new A();
+		//Thread t = new Thread(aa);aa并不是继承了Thread类的类所产生的对象
+		t.start();//new Thread(Runnable target)
+		
+		while(true)
+		{
+			System.out.printf("BBBB\n");
+		}
+	}
+}
+31、线程中的常用方法
+class B extends Thread
+{
+	public void run()
+	{
+		System.out.printf("%s线程正在执行\n",Thread.currentThread().getName());
+	}	
+}
+
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		B bb1 = new B();
+		bb1.setName("张三");//类对象名.setName(String)为设置线程的名字
+		bb1.start();
+		
+		B bb2 = new B();
+		bb2.setName("李四");
+		bb2.start();
+		
+		System.out.printf("%s线程正在执行\n",Thread.currentThread().getName());
+//Thread.currentThread()会返回对当前正在执行的线程对象的引用
+//类对象名.getName()会返回当前线程的名字
+	}
+}
+//该程序多次执行的输出结果是不一样的，满足线程的不可再现性
+
+32、设置优先级
+public class Exception //并不是按照优先级大的先输出完成再输出优先级小的
+//只不过是优先级高的先输出的概率更大一点
+{
+	public static void main(String[] args)
+	{
+		Thread t1 = new Thread(new T1());
+		Thread t2 = new Thread(new T2());
+		t1.setPriority(Thread.NORM_PRIORITY + 3);//设置t1的优先级，默认为5
+		System.out.printf("%d\n",t1.getPriority());//显示t1的优先级
+		t1.start();
+		
+		t2.setPriority(Thread.NORM_PRIORITY - 3);
+		System.out.printf("%d\n",t2.getPriority());
+		t2.start();
+	}
+}
+class T1 implements Runnable
+{
+	public void run()
+	{
+		int i;
+		for(i = 0;i < 100;i++)
+		{
+			System.out.println("T1：" + i);
+		}
+	}
+}
+
+class T2 implements Runnable
+{
+	public void run()
+	{
+		int i;
+		for(i = 0;i < 100;i++)
+		{
+			System.out.println("T2:" + i);
+		}
+	}
+}
+33、sleep的应用
+class A implements Runnable
+{
+	public void run()//这里不能加上throws InterruptedException否则会报错
+	{//因为重写异常抛出的范围不能大于被重写方法抛出的异常范围
+		for(int i = 0;i < 10;i++)
+		{
+			System.out.println(Thread.currentThread().getName() + i);
+			try
+			{
+				Thread.sleep(1000);//该异常必须要进行捕获处理
+			}//而且结束睡眠只不过是进入就绪区，如果还有其它线程，它不一定会立即被执行
+			catch(InterruptedException e)//一定要写清楚什么异常
+			{                        //写Exception e会报错？？？
+				e.printStackTrace();
+			}
+		}
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		A aa = new A();
+		Thread t = new Thread(aa);
+		t.start();//要是class A用实现接口的方法的话
+	}//否则就是extends Thread,然后下面就是简单的创建对象，然后aa.start()
+}
+34、yield的用法
+class MyThread implements Runnable
+{
+	public void run()
+	{
+		for(int i = 0;i < 100;i++)
+		{
+			System.out.println(Thread.currentThread().getName()+":"+ i);
+			if(0 == i%10)
+			{
+				Thread.yield();//每次i到10的倍数时，正在执行的线程让出CPU进入就绪序列
+			//然而接下来执行的不一定是线程1或者线程2，只不过是又给CPU一次选择执行的机会
+			}
+		}
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		MyThread mt = new MyThread();
+		Thread t1 = new Thread(mt);
+		Thread t2 = new Thread(mt);
+		
+		t1.setName("线程1");
+		t2.setName("线程2");
+		
+		t1.start();
+		t2.start();
+	}
+}
+35、join的用法
+public class Exception
+{
+	public static void main(String[] args)
+	{
+		Thread t1 = new Thread(new T1());
+		t1.start();
+		try
+		{
+			t1.join();//join暂停当前正在执行t1.join的线程
+			//直到t1对应的T1中的线程执行完成后再接着执行
+		}
+		catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		for(int i = 0;i < 50;i++)
+		{
+			System.out.println("主线程："+ i);
+		}
+	}
+}
+class T1 implements Runnable
+{
+	public void run()
+	{
+		int i;
+		for(i = 0;i < 50;i++)
+		{
+			System.out.println("子线程：" + i);
+		}
+	}//会先执行完子线程，再执行主线程
+}
+36、线程死循环的终止
+public class Exception
+{
+	public static void main(String[] args)
+	{
+		T t = new T();
+		Thread tt = new Thread(t);
+		tt.start();
+		
+		try
+		{
+			tt.sleep(1000);//经过1秒的睡眠后
+		}
+		catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		t.shutdown();
+	}
+}
+class T implements Runnable
+{
+	private boolean flag = true;
+	public void run()
+	{
+		while(flag)
+		{
+			System.out.println("AAAA");
+		}
+	}
+	public void shutdown()
+	{
+		this.flag = false;
+	}
+}
+37、卖票_1（待改进的程序）
+class A implements Runnable
+{//会出现某一张票被卖2次的情况，因为CPU不一定会在哪一时刻突然变化执行另一个线程
+	public int tickets = 100;//所以同步有问题
+	public void run()
+	{
+		while(true)//这里用for循环的话体现不出线程的知识
+		{
+			if(tickets > 0)
+			{
+				System.out.printf("%s正在卖出第%d张票\n",Thread.currentThread().
+						                                 getName(),101-tickets);
+				tickets--;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		A aa = new A();
+		Thread t1 = new Thread(aa);//这里采用第二种创建线程的方法较好
+		t1.setName("线程1");        //不过定义类的时候是实现Runnable不是继承Thread
+		t1.start();
+		
+		Thread t2 = new Thread(aa);
+		t2.setName("线程2");
+		t2.start();
+	}
+}
+38、卖票_2（正确的程序）
+class A implements Runnable
+{
+	public int tickets = 100;
+	String str = new String("哈哈");
+	
+	public void run()
+	{
+		while(true)
+		{
+			//String str = new String("哈哈");写在这里的话和没改进的程序执行结果一样
+//因为两个线程调用run方法时锁定的str一样的才可以，如果不一样，synchronized没什么意义
+			//String str = "哈哈";虽然也是正确的但是感觉比较别扭
+			synchronized(str)//不确定在哪个位置就切换线程
+			{
+				if(tickets > 0)
+				{
+					System.out.printf("%s正在卖出第%d张票\n",Thread.currentThread()
+							.getName(),101-tickets);
+					tickets--;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+		/*synchronized(str)
+		{
+			for(tickets = 100;tickets > 0;tickets--)
+			{
+				System.out.printf("%s正在卖出第%d张票\n",Thread.currentThread().getName(),
+		                  101-tickets);
+			}并不正确，还是线程1和2分别卖出100张票
+		}*/
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		A aa = new A();
+		Thread t1 = new Thread(aa);
+		t1.setName("线程1");
+		t1.start();
+		
+		Thread t2 = new Thread(aa);
+		t2.setName("线程2");
+		t2.start();
+	}
+}
+39、卖票_3（用第一种创建线程的方法）
+class A extends Thread
+{
+	/*public int tickets = 100;
+	String str = new String("哈哈");每张票都会被卖2次，线程1和2互不干扰
+	                                synchronized并没有起到作用*/
+	public static int tickets = 100;//两者必须都变为静态的才可以
+	public static String str = new String("哈哈");
+	
+	public void run()
+	{
+		while(true)
+		{
+			synchronized(str)
+			{
+				if(tickets > 0)
+				{
+					System.out.printf("%s正在卖出第%d张票\n",Thread.currentThread()
+							.getName(),101-tickets);
+					tickets--;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		A aa1 = new A();
+		aa1.start();
+		aa1.setName("线程1");
+		
+		A aa2 = new A();
+		aa2.start();
+		aa2.setName("线程2");
+	}
+}
+40、卖票_4（synchronized位置的错误问题）
+class A implements Runnable
+{
+	public int tickets = 100;
+	String str = new String("哈哈");
+	
+	public synchronized void run()//尽管synchronized能修饰方法，但此程序不正确
+	{                             //只有一个线程在卖100张票
+		//synchronized(str){//如果synchronized加在这里也是只有一个线程卖100张票
+		while(true)
+		{
+			if(tickets > 0)
+			{
+				System.out.printf("%s正在卖出第%d张票\n",Thread.currentThread()
+						.getName(),101-tickets);
+				tickets--;
+			}
+			else
+			{
+				break;
+			}
+		}
+		//}
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		A aa = new A();
+		Thread t1 = new Thread(aa);
+		t1.setName("线程1");
+		t1.start();
+		
+		Thread t2 = new Thread(aa);
+		t2.setName("线程2");
+		t2.start();
+	}
+}
+41、生产消费_1（错误的程序）
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		SynStack ss = new SynStack();
+		Producer pd = new Producer(ss);//因为构造方法中有参数ss
+		Consumer cm = new Consumer(ss);//就是说通过“框”来定义的Producer和Consumer
+		
+		Thread t1 = new Thread(pd);
+		t1.start();
+		
+		Thread t2 = new Thread(cm);
+		t2.start();
+	}
+}
+
+class SynStack//构造这个存储的“框”，其实是一个数组
+{
+	private int cnt = 0;//cnt表示数组有效元素的个数
+	private char[] data = new char[6];//char类型的数组
+	
+	public void push(char ch)
+	{
+		data[cnt] = ch;//ch不用加单引号，因为该数组是char类型的
+		cnt++;
+		System.out.println("11111\n");
+	}
+	public char pop()
+	{
+		cnt--;
+		System.out.println("22222\n");//证明了先执行push再执行pop，正确
+		return data[cnt];//如果先pop再push的话，cnt变为-1,data[-1]不存在
+	}
+}
+
+class Producer implements Runnable
+{
+	private SynStack ss = null;//定义一个属性
+	public Producer(SynStack ss)//通过这个类的构造方法把自己定义的“框”发送过来(初始化)
+	{                           //ss指向一个数组了
+		this.ss = ss;
+	}
+	public void run()
+	{
+		try
+		{
+			Thread.sleep(2000);//还没生产就消费了，肯定会报错
+		}
+		catch(InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		ss.push('a');//把a字符放进“框”中
+	}
+}
+
+class Consumer implements Runnable
+{
+	private SynStack ss = null;
+	public Consumer(SynStack ss)
+	{
+		this.ss = ss;
+	}
+	public void run()
+	{
+		System.out.printf("%c\n",ss.pop());//存进一个字符然后取出
+	}
+}
+42、生产消费_2（正确的程序）
+class SynStack
+{
+	private int cnt = 0;
+	private char[] data = new char[6];
+	
+	public synchronized void push(char ch)//synchronized不能被省略
+	{               //push和pop两者互异，不能同时执行,并且锁定的都是ss对象
+		while(cnt == data.length)//用if不对，一定要一直检测
+		{
+			try
+			{
+				this.wait();//表示暂停生产线程，进入阻塞状态
+			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		this.notify();//唤醒正在wait this的线程，具体哪一个不确定
+		
+		data[cnt] = ch;
+		cnt++;
+		System.out.printf("正在生产第%d个产品，该产品是：%c\n",cnt,ch);
+	}
+	public synchronized char pop()
+	{
+		char ch;
+		while(cnt == 0)
+		{
+			try
+			{
+				this.wait();
+			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		 }
+		this.notify();
+		
+		ch = data[cnt-1];//ch也就代表了要消费的产品
+		System.out.printf("正在消费第%d个产品，该产品是：%c\n",cnt,ch);
+		cnt--;
+		return ch;
+	}
+}
+
+class Producer implements Runnable
+{
+	public int i;
+	public char ch;
+	
+	private SynStack ss = null;
+	public Producer(SynStack ss)
+	{                          
+		this.ss = ss;
+	}
+	public void run()
+	{
+		for(i = 0;i < 20;i++)//生产20个产品
+		{
+			ch = (char)('a'+i);//强制类型转化为char型
+			ss.push(ch);
+		}
+	}
+}
+
+class Consumer implements Runnable
+{
+	public int i;
+	private SynStack ss = null;//null是什么意思？？？
+	public Consumer(SynStack ss)
+	{
+		this.ss = ss;
+	}
+	public void run()
+	{
+		for(i = 0;i < 20;i++)
+		{
+			ss.pop();
+		}
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		SynStack ss = new SynStack();
+		Producer pd = new Producer(ss);//构造方法有形参()也就是类对象名ss
+		Consumer cm = new Consumer(ss);
+		
+		Thread t1 = new Thread(pd);//对象不能写ss因为对应的类SynStack没有实现接口
+		t1.start();
+		
+		Thread t2 = new Thread(cm);
+		t2.start();
+	}
+}
+43、流_1(在显示器上显示文本文件)
+import java.io.*;//所有流都在该jar包中，每次都要调用
+
+public class Exception 
+{
+	public static void main(String[] args)throws IOException//流都要抛异常
+	{
+		FileReader fr = new FileReader("H:\\java\\Exception\\src\\Exception.java");
+		//表示地址要用"\\"或者是"/"不能是复制过来的“\”
+		int ch;
+		ch = fr.read();//读取返回的是二进制整型数据要用int类型
+		while(-1 != ch)
+		{
+			System.out.printf("%c",(char)ch);//显示的是二进制对应的字符，要强制类型转换
+			ch = fr.read();//不能缺少该行代码，要每次循环
+		}
+		fr.close();
+	}
+}
+44、流_2(文本文件的复制)
+import java.io.*;
+
+public class Exception 
+{
+	public static void main(String[] args)throws IOException//流都要抛异常
+	{
+		//FileReader fr = new FileReader("H:\\java\\Exception\\src\\Exception.java");
+		//FileWriter fw = new FileWriter("H:\\wang.sjd");
+		FileInputStream fis = new FileInputStream("H:\\java\\Exception\\src\\Exception.java");
+		FileOutputStream fos = new FileOutputStream("H:\\lei.sjd");
+//用字节流也可以，因为不用输出在显示器上(即不用转化为字符)，不用考虑文本要用两个字节表示
+		int ch;
+		ch = fis.read();
+		while(-1 != ch)
+		{
+			fos.write(ch);//把fw关联的文件中读取的字节写入ch字符串中
+			ch = fis.read();
+		}
+		
+		fos.flush();//先执行刷新，免得数据没有写入进去
+		fos.write(ch);
+		fis.close();
+	}
+}
+45、流_3(其它格式文件的复制)
+import java.io.*;
+
+public class Exception 
+{
+	public static void main(String[] args)throws IOException//流都要抛异常
+	{
+		//FileReader fis = new FileReader("H:\\KwDownload\\小幸运.mp3");
+		//FileWriter fos = new FileWriter("H:\\wang.sjd");
+		FileInputStream fis = new FileInputStream("H:\\KwDownload\\小幸运.mp3");
+		FileOutputStream fos = new FileOutputStream("H:\\lei.sjd");
+//用字节流可以实现所有格式文件的复制，而字符流不可以
+//因为有的格式文件编码不一定像文本文件一样2个字节(1个字符为单位)
+		int ch;
+		ch = fis.read();
+		while(-1 != ch)
+		{
+			fos.write(ch);//把fw关联的文件中读取的字节写入ch字符串中
+			ch = fis.read();
+		}
+		
+		fos.flush();//先执行刷新，免得数据没有写入进去
+		fos.write(ch);
+		fis.close();
+	}
+}
+46、流_4(缓存流的字节流)
+import java.io.*;
+
+public class Exception 
+{
+	public static void main(String[] args)throws IOException
+	{
+		BufferedInputStream bis = new BufferedInputStream(
+				new FileInputStream("H:\\KwDownload\\小幸运.mp3"));
+		//只有四大基本抽象流的缓冲流，没有具体的，依附于InputStream字节流
+		//也就是处理流依附于节点流
+		BufferedOutputStream bos = new BufferedOutputStream(
+				new FileOutputStream("H:\\lei.sjd"));
+		//内部管道(流)外部又套了个包裹管道(流)
+
+		byte[] buf = new byte[1024];//必须要定义一个临时的byte数组作为交互的中枢枢纽
+		int len;
+		len = bis.read(buf);//从bis关联的设备读出，然后写入buf
+		while(-1 != len)
+		{
+			bos.write(buf, 0, len);//写入有效数据
+			len = bis.read(buf);
+		}
+		
+		bos.flush();
+		bos.close();
+		bis.close();
+	}
+}
+47、流_5(缓存流的字符流)
+import java.io.*;
+
+public class Exception 
+{
+	public static void main(String[] args)throws IOException
+	{
+		BufferedReader br = new BufferedReader(
+				new FileReader("H:\\java\\Exception\\src\\Exception.java"));
+		BufferedWriter bw = new BufferedWriter(
+				new FileWriter("H:\\wang.sjd"));
+
+		String str;
+		str = br.readLine();//BufferedReader的方法读取一行 
+		
+		while(null != str)
+		{
+			bw.write(str);
+			str = br.readLine();//遇到回车符会终止读取，并将读取到的回车符自动丢弃，所以需要下一行代码才能彻底复制
+			bw.newLine();//换行符，不能省略，否则全部错误
+		}
+		
+
+		bw.close();
+		br.close();
+	}
+}
+48、流_6（把长整形数组写入字符数组再读出来了）
+import java.io.*;
+
+public class Exception 
+{
+	public static void main(String[] args)throws IOException
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		//自动创建一个字节数组，大小和输出流当前大小一样大，不用写形参
+		DataOutputStream dos = new DataOutputStream(baos);
+		//包裹流(处理流)在字节流的基础上
+		long m = 987654321;
+		dos.writeLong(m);//把m的二进制写入输出流dos对应的设备
+	
+		byte[] buf = baos.toByteArray();
+		//通过toByteArray()方法读出7行自动生成的字节数组内容
+		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(buf));
+		//因为要从字节数组中读出内容，所以一定要定义一个字节数组
+		long n;
+		n = dis.readLong();//把buf的内容读出到n
+		//dis.readLong(n);错误的不能有形参
+		System.out.println("n = "+n);
+	}
+}
+49、流_7（Print流）
+import java.io.*;
+
+public class Exception 
+{
+	public static void main(String[] args)throws IOException
+	{
+		PrintStream ps = new PrintStream("H:\\wang.jsd");
+		System.setOut(ps);//默认输出到显示器，然后setOut到ps关联的设备上
+		System.out.println("哈哈");
+	}
+}
+50、流_8(输入输出流的重定向)
+import java.io.*;
+import java.util.*;//Scanner是从util包里调用过来的
+
+public class Exception 
+{
+	public static void main(String[] args)throws IOException
+	{
+		PrintStream psOut = null;
+		PrintStream psError = null;
+		Scanner sc = null;//从键盘输入数据
+		try
+		{
+			psOut = new PrintStream("H:\\wang.sjd");
+			psError = new PrintStream("H:\\error.sjd");
+			sc = new Scanner(System.in);
+			int num;
+			System.setOut(psOut);//把输出存到psOut关联的设备中去
+			System.setErr(psError);//把出错的信息存到psError关联的设备中去
+			
+			while(true)//不是整型数据时退出while
+			{
+				num = sc.nextInt();//输入整型数据
+				System.out.println("num = "+num);
+			}
+		}
+		catch(ArithmeticException e)
+		{
+			System.err.println("出错的信息为：");
+			e.printStackTrace();
+		}
+	}
+}
+51、流_9(对象的序列化)
+import java.io.*;
+
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		ObjectOutputStream oos = null;
+		ObjectInputStream ois = null;
+		Student ss = new Student(20,"zhangsan",88.8f);//88.8是double类型的，加个f成了float类型的
+		Student ss2 = null;
+		
+		try
+		{
+			FileOutputStream fos = new FileOutputStream("H:\\wang.txt");
+			//要用objectoutputstream必须要有fileoutputstream做基础
+			oos = new ObjectOutputStream(fos);
+			oos.writeObject(ss);//把ss中的内同写入oos对应的设备中去
+			
+			ois = new ObjectInputStream(new FileInputStream("H:\\wang.txt"));
+			ss2 = (Student)ois.readObject();
+			//从ois关联的设备中把数据读出来，然后强制类型转化为Student类型的
+			//通过ss2输出看看是否一样
+			System.out.println("ss.snum = "+ss2.snum);
+			System.out.println("ss.sname = "+ss2.sname);
+			System.out.println("ss.score = "+ss2.sscore);
+			
+			oos.flush();
+			oos.close();
+			ois.close();
+		}
+		catch(FileNotFoundException e)
+		{
+			System.out.println("该文件没有被找到！");
+			System.exit(-1);
+		}
+		catch(ClassNotFoundException e)
+		{
+			System.out.println("该类没有被找到！");
+			System.exit(-1);
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+}
+class Student implements Serializable//要序列化必须实现该接口，而该接口为空，起标识作用
+{
+	public int snum = 0;
+	public String sname = null;
+	transient public float sscore = 0;//transient修饰的成员在对象序列化时不被序列化
+	
+	public Student(int num,String name,float score)
+	{
+		this.snum = num;
+		this.sname = name;
+		this.sscore = score;
+	}
+}
+52、容器_1(Collections的方法)
+import java.util.*;
+
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		List It = new LinkedList();//linkedlist是list的实现类，利用了多态
+		//实现一个接口对象发送给一个接口的引用
+		for(int i = 0;i < 7;i++)
+		{
+			It.add("a"+i);//因为要变成数组的形式
+		}
+		
+		System.out.println(It);
+		Collections.shuffle(It);//打乱原来的顺序
+		System.out.println(It);
+		Collections.sort(It);//默认升序
+		System.out.println(It);
+		Collections.reverse(It);//倒置
+		System.out.println(It);
+		System.out.println(Collections.binarySearch(It,"a5"));
+		//二分查找必须是升序的，所以要重新进行升序排列
+		Collections.sort(It);
+		System.out.println(It);
+		System.out.println(Collections.binarySearch(It,"a5"));
+	}
+}
+53、容器中Comparale接口
+import java.util.*;
+
+class Student implements Comparable
+{
+	public int num;
+	public String name;
+	
+	public Student(int num,String name)
+	{
+		this.num = num;
+		this.name = name;
+	}
+	
+	@Override//下面这个方法是从父类/接口 继承过来的，需要你重写一次
+	public String toString()
+	{
+		return num + name;
+	}//如果要输出的为new Student的对象一定要重写toString方法
+	
+	@Override
+	public int compareTo(Object ob) //compareTo方法在sort进行时自动调用
+	{
+		Student st = (Student)ob;
+		//必须进行强制转换，ob是父类的引用，而num是子类特有的属性（多态）
+		if(this.num == st.num)
+		// TODO Auto-generated method stub
+			return 0;
+		else if(this.num > st.num)
+			return 1;
+		else
+			return -1;
+	}
+	
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		List L = new ArrayList();
+		//L.add("1000  张三");
+		L.add(new Student(1000,"李四"));
+		L.add(new Student(1003,"张三"));
+		L.add(new Student(1002,"王五"));
+		L.add(new Student(1001,"黑六"));
+		
+		//Collections.sort(L);//add内写的是L.add("1000  张三")这样排序就写没错
+//如果写的是L.add(new Student(1000,"李四"))，编译器不知道Student类比较标准
+		Collections.sort(L);
+		System.out.println(L);
+	}
+}
+54、Set接口
+import java.util.*;
+
+class Student
+{
+	public int num;
+	public String name;
+	
+	public Student(int num,String name)
+	{
+		this.num = num;
+		this.name = name;
+	}
+	
+	@Override//下面这个方法是从父类/接口 继承过来的，需要你重写一次
+	public String toString()
+	{
+		return num + name;
+	}//如果要输出的为new Student的对象一定要重写toString方法
+	
+	@Override
+	public boolean equals(Object ob)
+	{
+		Student st = (Student)ob;
+		return (st.num == this.num) && (st.name == this.name);
+		//学号和姓名都是一样的才能确定输入参数是一样的
+	}
+
+	@Override
+	public int hashCode()
+	{
+//return num*this.name.hashCode();//判断两次的返回值(hashCode)是否一样
+//name是一个对象，都有一个hashCode而如果name一样，则hashCode值一样，而且要求num也一样
+		return new String(num+name).hashCode();
+		//name和num一样的话，hashCode就一样
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		Set S = new HashSet();
+		//Set接口没有顺序，所有没有比较或者set，get等方法
+		//另一个特点是不能重复，但要是想实现该特点，必须重写equals方法和hashCode方法
+		S.add(new Student(1000,"李四"));
+		S.add(new Student(1003,"张三"));
+		S.add(new Student(1000,"李四"));
+		S.add(new Student(1002,"王五"));
+		S.add(new Student(1001,"黑六"));
+		S.add(new Student(1000,"李四"));
+		
+		System.out.println(S);
+	}
+}
+55、TreeSet接口
+import java.util.*;
+
+class Student implements Comparable
+{
+	public int num;
+	public String name;
+	
+	public Student(int num,String name)
+	{
+		this.num = num;
+		this.name = name;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return num + name;
+	}
+	
+	@Override
+	public boolean equals(Object ob)
+	{
+		Student st = (Student)ob;
+		return (st.num == this.num) && (st.name == this.name);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return new String(num+name).hashCode();
+	}
+	
+	@Override
+	public int compareTo(Object ob)
+	{
+		Student st = (Student)ob;
+		/*if(this.num == st.num)
+			return 0;
+		else if(this.num > st.num)
+			return 1;
+		else
+			return -1;*/	
+		return this.num-st.num;//等价于上面几行代码
+	}
+}
+public class Exception 
+{
+	public static void main(String[] args)
+	{
+		Set S = new TreeSet();
+		//TreeSet一般只有排序的时候采用，元素放进去的时候自动排序
+
+		S.add(new Student(1000,"李四"));
+		S.add(new Student(1003,"张三"));
+		S.add(new Student(1000,"李四"));
+		S.add(new Student(1002,"王五"));
+		S.add(new Student(1001,"黑六"));
+		S.add(new Student(1000,"李四"));
+		
+		System.out.println(S);
+	}
+}
+56、Itretor接口
+import java.util.*;
+
+class Point
+{
+	private int i = 0;
+	private int j = 0;
+	
+	public Point(int i,int j)
+	{
+		this.i = i;
+		this.j = j;
+	}
+	
+	@Override
+	//要想返回的不是类名+哈希码的形式，必须重写toString方法
+	public String toString()
+	{
+		return "["+i+","+j+"]";
+	}
+}
+
+public class Exception 
+{
+	public static void showCollection(Collection c)
+	{
+		Iterator it = c.iterator();
+		//方法iterator会输出容器c中的所有元素，it相当于一个指针
+		while(it.hasNext())//当it后面还有元素时执行第10行代码
+		{
+			System.out.println(it.next());
+			//输出当前位置的下一个元素，并且后移一位
+		}
+	}
+	public static void main(String[] args)
+	{
+		ArrayList al = new ArrayList();
+		al.add("one");
+		al.add(11);
+		al.add(new Point(1,1));
+		System.out.println("al容器内的内容是：");
+		showCollection(al);
+		
+		HashSet hs = new HashSet();
+		hs.add("two");
+		hs.add(22);
+		hs.add(new Point(2,2));
+		System.out.println("hs容器内的内容是：");
+		showCollection(hs);
+	}
+}
+57、Map接口
+import java.util.*;
+//hashMap,hashSet,hash*都需要重写hashCode和equals方法
+
+class Student
+{
+	private int num;
+	private String name;
+	private int age;
+	
+	public Student(int num,String name,int age)
+	{
+		this.num = num;
+		this.name = name;
+		this.age = age;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return num*age*name.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object ob)
+	{
+		Student st = (Student)ob;
+		return (this.num==st.num)&&(this.age==st.age)&&(this.name.equals(st.name));
+	}
+	
+	@Override
+	public String toString()
+	{
+		return num+" "+name+" "+age;
+	}
+}
+public class Exception 
+{
+	
+	public static void main(String[] args)
+	{
+		HashMap hm = new HashMap();
+		hm.put(1001, new Student(1001,"张三",22));//自动封装
+        //1001为关键字key是一个对象，后面为值(value)
+		hm.put(1002, new Student(1002,"李四",21));
+		hm.put(new Integer(1000), new Student(1005,"王五",23));
+        //前面的1001也是一个new出来的Integer对象，具体是多少没多大意义，后面才是真正的值
+		System.out.println("hm容器中所有内容是：");
+		//遍历所有元素，需要先获取关键字(key)
+		Set s = hm.keySet();//keySet方法就能获取到关键字的集合，是一个Set对象(容器)
+		Iterator it = s.iterator();
+		//s中有iterator方法(输出容器中所有元素)，it是个指针，指向的是存放关键字的s容器
+		while(it.hasNext())
+		{
+			Integer aa = (Integer)it.next();
+			//把Object类型的it.next()强制类型转化为关键字的类型，aa为真正的关键字了
+			//it.next()返回it指向的是s中的关键字，放入aa中
+			System.out.println(hm.get(aa));
+			//get(aa)把aa中的关键字对应的元素输出出来
+		}
+		
+		//System.out.println(hm.get(1003));查找hm容器中是否有1003这个元素
+	}
+}
+58、网络编程_1 UDP服务器端
+//服务器端程序
+import java.io.*;
+import java.net.*;//网络编程需要调用该包
+
+public class Exception 
+{
+	
+	public static void main(String[] args) throws SocketException
+	{
+		DatagramSocket ds = new DatagramSocket(123);
+		//定义输出，接收数据操作的码头，123为端口号
+		
+		byte buf[] = new byte[1024];
+		DatagramPacket dp = new DatagramPacket(buf,buf.length);
+		//定义接收，输出数据的集装箱，集装箱需要有存放数据的字节数组
+		try
+		{
+			while(true)
+			{
+				ds.receive(dp);//在码头上用集装箱接收数据
+				
+				ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+				DataInputStream dis = new DataInputStream(bais);
+				
+				System.out.println(dis.readLong());
+			}
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+			ds.close();//数据操作完成后，关闭码头
+		}
+	}
+}
+59、网络编程_1 UDP用户端
+import java.io.*;
+import java.net.*;
+
+public class Exception 
+{
+	
+	public static void main(String[] args) throws IOException
+	{
+		DatagramSocket ds = new DatagramSocket();//定义码头,此处不用写端口号
+		
+		long n = 1234567l;//定义要传输的长整形数据
+		//要把长整形数据存入集装箱dp中才能进行传输
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		//内部为一个默认的缓冲字节流
+		DataOutputStream dos = new DataOutputStream(baos); 
+		dos.writeLong(n);
+		
+		byte buf[] = baos.toByteArray();//新造出一个和输入字节流一样大小的字节数组
+		DatagramPacket dp = new DatagramPacket(buf, buf.length,
+				                     new InetSocketAddress("127.0.0.1",123));
+		//IP地址127.0.0.1在Java中用java.net.InetAddress
+		//必须写成InetAddress.getByname("127.0.0.1")
+	
+		ds.send(dp);
+		ds.close();
+	}
+}
+60、TCP_1客户端
+import java.io.*;
+import java.net.*;
+
+public class Exception 
+{
+	
+	public static void main(String[] args) throws IOException
+	{
+		Socket s = new Socket("127.0.0.1",1234);
+		//自动发送一个连接请求，如果服务器端没有打开抛出异常
+		
+		OutputStream os = s.getOutputStream();
+		DataOutputStream dos = new DataOutputStream(os);
+		
+		dos.writeUTF("发送成功！");
+		//writeUTF可以输出字符串
+		dos.flush();
+		dos.close();
+		s.close();
+	}
+}
+61、TCP_2服务器端
+import java.io.*;
+import java.net.*;
+
+public class Exception 
+{
+	
+	public static void main(String[] args) throws IOException
+	{
+		ServerSocket ss = new ServerSocket(1234);
+		
+		while(true)
+		{
+			Socket s = ss.accept();
+			
+			System.out.println("一个链接已经建立");
+			DataInputStream dis = new DataInputStream(s.getInputStream());
+			System.out.println(dis.readUTF());
+			
+			dis.close();
+			s.close();
+		}
+	}
+}
+62、算法_1
+import java.util.*;
+
+class A//从键盘输入一个8位数组,插入排序
+{
+	public void show()
+	{
+		int j,x,i;
+		int[] a = new int[8];
+		Scanner sc = new Scanner(System.in);
+		for(j = 0;j < 8;j++)
+		{
+			a[j] = sc.nextInt();
+		}
+		//插入排序算法
+		for(j = 1;j < 8;j++)
+		{
+			x = a[j];
+			i = j-1;
+			while((i >= 0)&&(x < a[i]))
+			{
+				a[i+1] = a[i];
+				i = i-1;
+			}
+			a[i+1] = x;
+		}
+		System.out.println("从小到大排序的结果为：");
+		for(j = 0;j < 8;j++)
+		{
+			System.out.printf("%d ",a[j]);
+		}
+	}
+}
+public class Exception 
+{
+	
+	public static void main(String[] args)
+	{
+		A aa = new A();
+		aa.show();
+	}
+}
+/*
+输入：5 8 1 3 6 2 4 7换行
+不自动输出？？还要换行
+输出：1 2 3 4 5 6 7 8 */
+63、Swing对话框_1
+import java.awt.*;
+
+import javax.swing.JOptionPane;
+
+public class Exception
+{
+	public static void main(String[] args)
+	{
+		JOptionPane.showConfirmDialog(null,"哈哈","使用Swing对话框输出",1);
+		System.exit(0);
+	}
+}
+64、Swing对话框_2
+import java.awt.*;
+
+import javax.swing.JOptionPane;
+
+public class Exception
+{
+	public static void main(String[] args)
+	{
+		int i,j,max,eve;
+		String n,m;
+		n = JOptionPane.showInputDialog(null,"输入第一个整数：");
+		m = JOptionPane.showInputDialog(null,"输入第二个整数：");
+		i = Integer.parseInt(n);
+		j = Integer.parseInt(m);//把字符型数据变为整型
+		max = i > j ? i : j;
+		eve = (i + j)/2;
+		JOptionPane.showMessageDialog(null,max,"i和j的最大数是",1);
+		JOptionPane.showMessageDialog(null,eve,"i和j的平均数是",1);
+		System.exit(0);
+	}
+}
+65、算法_2判断是不是素数
+import java.util.*;
+
+public class Exception
+{
+	public static void main(String[] args)
+	{
+		int n,s,j;
+		Scanner sc = new Scanner(System.in);
+		System.out.println("请输入不小于2的整数m：");
+		n = sc.nextInt();
+		
+		s = (int)Math.sqrt((double)n);//math.sqrt中对象为double类型，需要类型转换
+		//该算法其实是在原有判断素数的算法的基础上缩小了一半的判断范围
+		for(j = 2;j <= s;j++)
+		{
+			if(n%j == 0)//找到约数就跳出循环，因为有一个就可以
+				break;//break跳出for循环
+		}
+		if(s == j)
+			System.out.println("m不是素数");
+		else
+			System.out.println("m是素数");
+	}
+}
+66、封装
+class A
+{
+	private int num;//不允许对象直接访问属性，需要进行封装，也就是把级别改为private
+	//如果级别为private在后面的赋值语句就没法执行
+	private String name = "张三";
+	
+	public void setNum(int num)
+	{
+		this.num = num;//一个好的程序都是需要进行封装的
+		//也就是用setXXX,getXXX来设置或取得属性值
+	}
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public void show()
+	{
+		System.out.println(num);
+		System.out.println(name);
+	}
+}
+public class Exception
+{
+	public static void main(String[] args)
+	{
+		A aa = new A();
+		//aa.num = 100;错误的，num级别为private不能直接通过对象名直接访问的
+		aa.setNum(100);
+		aa.getName();
+		aa.show();
+	}
+}
+67、null
+1：避免引用类型数据没有进行初始化报错
+2：释放内存
+       当不在使用某一个非null的引用变量指向的对象时，为了加快其内存回收，可是指向Null。这个对象就不再被任何对象引用了，等待JVM垃圾回收机制去回收
+
+尚未完成的hr管理系统
+import java.util.*;
+
+class Employee{
+	private String empNo;
+	private String password;
+	private String empName;
+	private String sex;
+	private String department;
+	private double salary;
+	private int empLevel;//1是管理员，2是部门经理，3是普通员工
+	
+	public Employee()//无参构造方法
+	{
+	}
+	//有参构造方法
+	public Employee(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		//super();
+		this.empNo = empNo;
+		this.empName = empName;
+		this.password = password;
+		this.sex = sex;
+		this.department = department;
+		this.salary = salary;
+		this.empLevel = empLevel;
+	}
+	
+	//修改密码
+	public void modifypassword(String newpassword)
+	{
+		this.password = newpassword;
+		System.out.println("修改密码成功");
+	}
+
+	//显示员工信息
+	public void show()
+	{
+		String position = null;
+		for(int i = 0;i < 20;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+		
+		if(empLevel == 1)
+			position = "普通员工";
+		else if(empLevel == 2)
+			position = "部门经理";
+		else
+			position = "管理员";
+		
+		System.out.println("员工编号："+empNo);
+		System.out.println("员工姓名："+empName);
+		System.out.println("员工性别："+sex);
+		System.out.println("员工级别："+empLevel);
+		System.out.println("员工所属部门："+department);
+		System.out.println("员工工资："+salary);
+		
+		for(int j = 0;j < 20;j++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+	}
+	
+	public String getEmpNo()//要进行封装，使用setXXX，getXXX获得私有属性
+	{
+		return empNo;
+	}
+	public void setEmpNo(String empNo)
+	{
+		this.empNo = empNo;
+	}
+	
+	public String getEmpName()
+	{
+		return empName;
+	}
+	public void setEmpName(String empName)
+	{
+		this.empName = empName;
+	}
+	
+	public String getSex()
+	{
+		return sex;
+	}
+	public void setSex(String sex)
+	{
+		this.sex = sex;
+	}
+	
+	public String getDepartment()
+	{
+		return department;
+	}
+	public void setDepartment(String department)
+	{
+		this.department = department;
+	}
+	
+	public double getSalary()
+	{
+		return salary;
+	}
+	public void setSalary(double salary)
+	{
+		this.salary = salary;
+	}
+	
+	public int getEmpLevel()
+	{
+		return empLevel;
+	}
+	public void setEmpLevel(int empLevel)
+	{
+		this.empLevel = empLevel;
+	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+	public void setPassword(String password)
+	{
+		this.password = password;
+	}
+}
+
+class Menu{
+	Scanner input = new Scanner(System.in);
+	
+	//登录界面
+	public void showMenu()
+	{
+		System.out.println("欢迎进入企业人力资源管理系统");
+		for(int i = 0;i < 25;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.登录系统");
+		System.out.println("\t2.退出系统");
+		for(int j = 0;j < 25;j++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字：");
+	}
+	
+	//返回登录界面
+	private void returnLoginMenu(Scanner input)
+	{
+		boolean flag = true;
+		do
+		{
+			String num = input.next();
+			if(num.toUpperCase().equals("R"))
+			{
+				flag = false;
+				showMenu();
+				break;
+			}
+			else
+				System.out.println("该功能尚未实现，请输入R/r返回登录菜单：");
+		}while(flag);
+	}
+	
+	//普通员工的主菜单
+	public void showStaffMenu()
+	{
+		System.out.println("人力资源管理系统————普通员工");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.查看考评信息");
+		System.out.println("\t6.汇报工作");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		returnLoginMenu(input);
+	}
+	
+	//部门经理的主菜单
+	public void showManangerMenu()
+	{
+		System.out.println("人力资源管理系统————部门经理");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.考评员工");
+		System.out.println("\t6.查看工作汇报");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		returnLoginMenu(input);
+	}
+		
+	//管理员的主菜单
+	public void showAdminMenu()
+	{
+		System.out.println("人力资源管理系统————管理员");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.修改员工角色");
+		System.out.println("\t6.查看员工信息");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		returnLoginMenu(input);
+	}
+}
+
+public class StartMenu {
+	public static void main(String[] args){
+		//先对普通员工，部门经理，管理员进行实例化
+		Employee staff = new Employee("x0001","y111","张三","女","销售部",3000.3,1);
+		Employee manager = new Employee("0002","222","李四","男","销售部",4000.4,2);
+		Employee admin = new Employee("0003","333","王五","男","销售部",5000.5,3);
+		
+		Menu menu = new Menu();
+		menu.showMenu();
+		
+		boolean flag = true;
+		Scanner input = new Scanner(System.in);
+		while(flag)
+		{
+			int choice = input.nextInt();
+			switch(choice)
+			{
+				case 1:System.out.println("请输入员工编号：");
+					String no = input.next();
+					System.out.println("请输入密码：");
+					String password = input.next();
+					if(no.equals(staff.getEmpNo())&&password.equals(staff.getPassword()))
+						menu.showStaffMenu();
+					else if(no.equals(manager.getEmpNo())&&password.equals(manager.getPassword()))
+						menu.showManangerMenu();
+					else if(no.equals(admin.getEmpNo())&&password.equals(admin.getPassword()))
+						menu.showAdminMenu();
+					else
+					{
+						System.out.println("员工编号或密码不正确，请重新输入菜单项数字：");
+						menu.showMenu();
+					}
+					break;
+				case 2:
+					System.out.println("您退出了系统！");
+					break;
+				default:
+					System.out.println("输入选项不正确，请重新输入菜单项数字：");
+					menu.showMenu();
+					break;
+			}
+			if(!flag)
+				break;
+		}
+	}
+}
+68、改进1：要实现在普通用户界面下的选择
+1、修改密码后新密码没有覆盖
+2、查看员工个人信息是空的
+   不一个对象，该怎么解决
+import java.util.*;
+
+class Employee{
+	private String empNo;
+	private String password;
+	private String empName;
+	private String sex;
+	private String department;
+	private double salary;
+	private int empLevel;//1是管理员，2是部门经理，3是普通员工
+	
+	public Employee()//无参构造方法
+	{
+	}
+	//有参构造方法
+	public Employee(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		//super();
+		this.empNo = empNo;
+		this.empName = empName;
+		this.password = password;
+		this.sex = sex;
+		this.department = department;
+		this.salary = salary;
+		this.empLevel = empLevel;
+	}
+	
+	//修改密码
+	public void modifypassword(String newpassword)
+	{
+		this.password = newpassword;
+		System.out.println("修改密码成功！");
+	}
+
+	//显示员工信息
+	public void show()
+	{
+		String position = null;
+		for(int i = 0;i < 20;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+		
+		if(empLevel == 1)
+			position = "普通员工";
+		else if(empLevel == 2)
+			position = "部门经理";
+		else
+			position = "管理员";
+		
+		System.out.println("员工编号："+empNo);
+		System.out.println("员工姓名："+empName);
+		System.out.println("员工性别："+sex);
+		System.out.println("员工级别："+empLevel);
+		System.out.println("员工所属部门："+department);
+		System.out.println("员工工资："+salary);
+		
+		for(int j = 0;j < 20;j++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+	}
+	
+	public String getEmpNo()//要进行封装，使用setXXX，getXXX获得私有属性
+	{
+		return empNo;
+	}
+	public void setEmpNo(String empNo)
+	{
+		this.empNo = empNo;
+	}
+	
+	public String getEmpName()
+	{
+		return empName;
+	}
+	public void setEmpName(String empName)
+	{
+		this.empName = empName;
+	}
+	
+	public String getSex()
+	{
+		return sex;
+	}
+	public void setSex(String sex)
+	{
+		this.sex = sex;
+	}
+	
+	public String getDepartment()
+	{
+		return department;
+	}
+	public void setDepartment(String department)
+	{
+		this.department = department;
+	}
+	
+	public double getSalary()
+	{
+		return salary;
+	}
+	public void setSalary(double salary)
+	{
+		this.salary = salary;
+	}
+	
+	public int getEmpLevel()
+	{
+		return empLevel;
+	}
+	public void setEmpLevel(int empLevel)
+	{
+		this.empLevel = empLevel;
+	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+	public void setPassword(String password)
+	{
+		this.password = password;
+	}
+}
+
+class Menu{
+	Scanner input = new Scanner(System.in);
+	
+	//登录界面OK
+	public void showMenu()
+	{
+		System.out.println("欢迎进入企业人力资源管理系统");
+		for(int i = 0;i < 25;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.登录系统");
+		System.out.println("\t2.退出系统");
+		for(int j = 0;j < 25;j++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.printf("请输入菜单项数字：");//用println在后面键盘输入时容易出现错误
+		//eclipse 光标不会自动移到下一行末尾而是开头，需要手动操作，否则容易出错
+	}
+	
+	//返回登录界面
+	/*private void returnLoginMenu(String input)
+	{
+		boolean flag = true;
+		do
+		{
+			String letter = input;
+			if(letter.toUpperCase().equals("R"))
+			{
+				flag = false;
+				showMenu();
+				break;
+			}
+			else
+				System.out.println("该功能尚未实现，请输入R/r返回登录菜单：");
+		}while(flag);
+	}*/
+	
+	//普通员工的主菜单
+	public void showStaffMenu()
+	{
+		System.out.println("人力资源管理系统————普通员工");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.查看考评信息");
+		System.out.println("\t6.汇报工作");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+	}
+	
+	//部门经理的主菜单
+	public void showManangerMenu()
+	{
+		System.out.println("人力资源管理系统————部门经理");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.考评员工");
+		System.out.println("\t6.查看工作汇报");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		//returnLoginMenu(input);
+	}
+		
+	//管理员的主菜单
+	public void showAdminMenu()
+	{
+		System.out.println("人力资源管理系统————管理员");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.修改员工角色");
+		System.out.println("\t6.查看员工信息");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		//returnLoginMenu(input);
+	}
+}
+
+public class StartMenu {
+	public static void main(String[] args){
+		//先对普通员工，部门经理，管理员进行实例化
+		Employee emp = new Employee();
+		Employee staff = new Employee("0001","111","张三","女","销售部",3000.3,1);
+		Employee manager = new Employee("0002","222","李四","男","销售部",4000.4,2);
+		Employee admin = new Employee("0003","333","王五","男","销售部",5000.5,3);
+		
+		Menu menu = new Menu();
+		menu.showMenu();
+		
+		boolean flag = true;
+		Scanner input = new Scanner(System.in);
+		while(flag)
+		{
+			int choice = input.nextInt();
+			switch(choice)
+			{
+				case 1:System.out.printf("请输入员工编号：");
+					String no = input.next();
+					System.out.printf("请输入密码：");
+					String password = input.next();
+					if(no.equals(staff.getEmpNo())&&password.equals(staff.getPassword()))
+						{
+							menu.showStaffMenu();
+							String str = input.next();
+							switch(str)
+							{
+								case "1":
+									emp.show();
+									menu.showStaffMenu();
+									break;
+								case "2":
+									emp.modifypassword(input.next());
+									menu.showStaffMenu();
+									break;
+								case "r":
+								case "R":
+									menu.showMenu();
+									break;
+								default:
+									System.out.println("请输入正确的选项！");
+									menu.showStaffMenu();
+									break;
+							}
+						}
+					else if(no.equals(manager.getEmpNo())&&password.equals(manager.getPassword()))
+						menu.showManangerMenu();
+					else if(no.equals(admin.getEmpNo())&&password.equals(admin.getPassword()))
+						menu.showAdminMenu();
+					else
+					{
+						System.out.println("员工编号或密码不正确！");
+						menu.showMenu();
+					}
+					break;
+				case 2:
+					System.out.println("您退出了系统！");
+					flag = false;//标识符变化才能让退出程序完成
+					break;
+				default:
+					System.out.println("输入选项不正确！");
+					menu.showMenu();
+					break;
+			}
+			if(!flag)
+				break;
+		}
+	}
+}
+69、改进程序_2
+import java.util.*;
+
+class Employee{
+	private String empNo;
+	private String password;
+	private String empName;
+	private String sex;
+	private String department;
+	private double salary;
+	private int empLevel;//1是管理员，2是部门经理，3是普通员工
+	
+	public Employee()//无参构造方法
+	{
+	}
+	//有参构造方法
+	public Employee(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		//super();
+		this.empNo = empNo;
+		this.empName = empName;
+		this.password = password;
+		this.sex = sex;
+		this.department = department;
+		this.salary = salary;
+		this.empLevel = empLevel;
+	}
+	
+	//修改密码
+	public void modifypassword(String newpassword)
+	{
+		this.password = newpassword;
+		System.out.println("修改密码成功！");
+	}
+
+	//显示员工信息
+	public void show()
+	{
+		for(int i = 0;i < 20;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+
+		String position = null;
+		if(empLevel == 1)
+			position = "普通员工";
+		else if(empLevel == 2)
+			position = "部门经理";
+		else
+			position = "管理员";
+		
+		System.out.println("员工编号："+empNo);
+		System.out.println("员工姓名："+empName);
+		System.out.println("员工性别："+sex);
+		System.out.println("员工级别："+position);
+		System.out.println("员工所属部门："+department);
+		System.out.println("员工工资："+salary);
+		
+		for(int j = 0;j < 20;j++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+	}
+	
+	public String getEmpNo()//要进行封装，使用setXXX，getXXX获得私有属性
+	{
+		return empNo;
+	}
+	public void setEmpNo(String empNo)
+	{
+		this.empNo = empNo;
+	}
+	
+	public String getEmpName()
+	{
+		return empName;
+	}
+	public void setEmpName(String empName)
+	{
+		this.empName = empName;
+	}
+	
+	public String getSex()
+	{
+		return sex;
+	}
+	public void setSex(String sex)
+	{
+		this.sex = sex;
+	}
+	
+	public String getDepartment()
+	{
+		return department;
+	}
+	public void setDepartment(String department)
+	{
+		this.department = department;
+	}
+	
+	public double getSalary()
+	{
+		return salary;
+	}
+	public void setSalary(double salary)
+	{
+		this.salary = salary;
+	}
+	
+	public int getEmpLevel()
+	{
+		return empLevel;
+	}
+	public void setEmpLevel(int empLevel)
+	{
+		this.empLevel = empLevel;
+	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+	public void setPassword(String password)
+	{
+		this.password = password;
+	}
+}
+
+class Menu{
+	Scanner input = new Scanner(System.in);
+	
+	//登录界面OK
+	public void showMenu()
+	{
+		System.out.println("欢迎进入企业人力资源管理系统");
+		for(int i = 0;i < 25;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.登录系统");
+		System.out.println("\t2.退出系统");
+		for(int j = 0;j < 25;j++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.printf("请输入菜单项数字：");//用println在后面键盘输入时容易出现错误
+		//eclipse 光标不会自动移到下一行末尾而是开头，需要手动操作，否则容易出错
+	}
+	//普通员工的主菜单
+	public void showStaffMenu()
+	{
+		System.out.println("人力资源管理系统————普通员工");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.查看考评信息");
+		System.out.println("\t6.汇报工作");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+	}
+	
+	//部门经理的主菜单
+	public void showManangerMenu()
+	{
+		System.out.println("人力资源管理系统————部门经理");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.考评员工");
+		System.out.println("\t6.查看工作汇报");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		//returnLoginMenu(input);
+	}
+		
+	//管理员的主菜单
+	public void showAdminMenu()
+	{
+		System.out.println("人力资源管理系统————管理员");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.修改员工角色");
+		System.out.println("\t6.查看员工信息");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		//returnLoginMenu(input);
+	}
+}
+
+public class StartMenu {
+	public static void main(String[] args){
+		//先对普通员工，部门经理，管理员进行实例化
+		Employee emp = new Employee();
+		Employee staff = new Employee("0001","111","张三","女","销售部",3000.3,1);
+		Employee manager = new Employee("0002","222","李四","男","销售部",4000.4,2);
+		Employee admin = new Employee("0003","333","王五","男","销售部",5000.5,3);
+		
+		Menu menu = new Menu();
+		menu.showMenu();
+		
+		boolean flag = true;
+		Scanner input = new Scanner(System.in);
+		while(flag)//标志进行while循环
+		{
+			int choice = input.nextInt();
+			switch(choice)
+			{
+				case 1:System.out.printf("请输入员工编号：");
+					String no = input.next();
+					System.out.printf("请输入密码：");
+					String password = input.next();
+					if(no.equals(staff.getEmpNo())&&password.equals(staff.getPassword()))
+					{
+						boolean flag1 = true;
+		//设置一个循环标识符可以节省很多行代码，也可以让程序看起来条理更加清晰
+						while(flag1)
+						{
+							menu.showStaffMenu();
+							String str1 = input.next();
+							switch(str1)
+							{
+								case "1":
+									staff.show();
+									break;
+								case "2":
+									System.out.printf("请输入新密码：");
+									staff.modifypassword(input.next());
+									break;
+								case "r":
+								case "R":
+									flag1 = false;//循环标识符变化退出while循环
+									break;
+								default:
+									System.out.println("/尚未实现该功能/请输入正确的选项！");
+									break;
+							}
+						}
+						if(!flag1)
+							menu.showMenu();//返回主菜单
+					}
+					else if(no.equals(manager.getEmpNo())&&password.equals(manager.getPassword()))
+					{
+						boolean flag2 = true;
+						while(flag2)
+						{
+							menu.showManangerMenu();
+							String str2 = input.next();
+							switch(str2)
+							{
+								case "1":
+									manager.show();
+									break;
+								case "2":
+									System.out.printf("请输入新密码：");
+									manager.modifypassword(input.next());
+									break;
+								case "r":
+								case "R":
+									flag2 = false;
+									break;
+								default:
+									System.out.println("/尚未实现该功能/请输入正确的选项！");
+									break;
+							}
+						}
+						if(!flag2)
+							menu.showMenu();
+					}
+					else if(no.equals(admin.getEmpNo())&&password.equals(admin.getPassword()))
+					{
+						boolean flag3 = true;
+						while(flag3)
+						{
+							menu.showAdminMenu();
+							String str3 = input.next();
+							switch(str3)
+							{
+								case "1":
+									admin.show();
+									break;
+								case "2":
+									System.out.printf("请输入新密码：");
+									admin.modifypassword(input.next());
+									break;
+								case "r":
+								case "R":
+									flag3 = false;
+									break;
+								default:
+									System.out.println("/尚未实现该功能/请输入正确的选项！");
+									break;
+							}
+						}
+						if(!flag3)
+							menu.showMenu();
+					}
+					else
+					{
+						System.out.println("员工编号或密码不正确！");
+						menu.showMenu();
+					}
+					break;
+				case 2:
+					System.out.println("您退出了系统！");
+					flag = false;//标识符变化才能让退出程序完成
+					break;
+				default:
+					System.out.println("输入选项不正确！");
+					menu.showMenu();
+					break;
+			}
+			if(!flag)
+				break;//在case2中改变标志符号，退出while循环
+		}		
+	}
+}
+实现了修改密码；改正了循环的错误；
+还需要改进的地方：
+添加各个界面的其他功能3--6
+70、改进程序_3
+import java.util.*;
+
+class Employee{
+	private String empNo;
+	private String password;
+	private String empName;
+	private String sex;
+	private String department;
+	private double salary;
+	private int empLevel;//1是管理员，2是部门经理，3是普通员工
+	
+	public Employee()//无参构造方法,方便后面可能出现的子类继承
+	{
+		
+	}
+	//有参构造方法
+	public Employee(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		this.empNo = empNo;
+		this.empName = empName;
+		this.password = password;
+		this.sex = sex;
+		this.department = department;
+		this.salary = salary;
+		this.empLevel = empLevel;
+	}
+	
+	//修改密码
+	public void modifypassword(String newpassword)
+	{
+		this.password = newpassword;
+		System.out.println("修改密码成功！");
+	}
+
+	//显示员工信息
+	public void show()
+	{
+		String position = null;
+		if(empLevel == 1)
+			position = "普通员工";
+		else if(empLevel == 2)
+			position = "部门经理";
+		else
+			position = "管理员";
+		
+		System.out.println("员工编号："+empNo);
+		System.out.println("员工姓名："+empName);
+		System.out.println("员工性别："+sex);
+		System.out.println("员工级别："+position);
+		System.out.println("员工所属部门："+department);
+		System.out.println("员工工资："+salary);
+	}
+	
+	public String getEmpNo()//要进行封装，使用setXXX，getXXX获得私有属性
+	{
+		return empNo;
+	}
+	public void setEmpNo(String empNo)
+	{
+		this.empNo = empNo;
+	}
+	
+	public String getEmpName()
+	{
+		return empName;
+	}
+	public void setEmpName(String empName)
+	{
+		this.empName = empName;
+	}
+	
+	public String getSex()
+	{
+		return sex;
+	}
+	public void setSex(String sex)
+	{
+		this.sex = sex;
+	}
+	
+	public String getDepartment()
+	{
+		return department;
+	}
+	public void setDepartment(String department)
+	{
+		this.department = department;
+	}
+	
+	public double getSalary()
+	{
+		return salary;
+	}
+	public void setSalary(double salary)
+	{
+		this.salary = salary;
+	}
+	
+	public int getEmpLevel()
+	{
+		return empLevel;
+	}
+	public void setEmpLevel(int empLevel)
+	{
+		this.empLevel = empLevel;
+	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+	public void setPassword(String password)
+	{
+		this.password = password;
+	}
+}
+
+class Report
+{
+	private int reportId;
+	private String reporterId;
+	private String content;
+	
+	public Report()
+	{
+		
+	}
+	public Report(int reportId,String reporterId,String content)
+	{
+		this.reportId = reportId;
+		this.reporterId = reporterId;
+		this.content = content;
+	}
+	public int getReportId()
+	{
+		return reportId;
+	}
+	public void setReportId(int reportId)
+	{
+		this.reportId = reportId;
+	}
+	public String getReporterId()
+	{
+		return reporterId;
+	}
+	public void setReporterId(String reporterId)
+	{
+		this.reporterId = reporterId;
+	}
+	public String getContent()
+	{
+		return content;
+	}
+	public void setConent(String content)
+	{
+		this.content = content;
+	}
+}
+
+class Data
+{
+	public static Employee currentEmployee;
+	public static Staff staff = new Staff("0001","111","张三","女","销售部",3000.3,1);
+	public static Manager manager = new Manager("0002","222","李四","男","销售部",4000.4,2);
+	public static Admin admin = new Admin("0003","333","王五","男","销售部",5000.5,3);
+	public static int reportcount = 0;
+	public static Report[] reports = new Report[1000];
+	
+	public static void init()
+	{
+		for(int i = 0;i < reports.length;i++)
+		{
+			reports[i] = new Report();
+		}
+	}
+}
+
+class Staff extends Employee
+{
+	public Staff()//继承父类的无参构造方法
+	{
+		super();
+	}
+	
+	public Staff(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//汇报工作
+	public void addReport(Report report)
+	{
+		Data.reports[Data.reportcount++] = report;
+	}
+}
+
+class Manager extends Employee
+{
+	public Manager()
+	{
+		super();
+	}
+	
+	public Manager(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//查看员工汇报工作
+	public void displayReports()
+	{
+		System.out.println("汇报工作如下：");
+		System.out.println("汇报Id"+"\t"+"汇报人Id"+"\t\t"+"汇报内容");
+		for(int i = 0;i < Data.reportcount;i++)
+		{
+			System.out.println(Data.reports[i].getReportId()+"\t"+
+		       Data.reports[i].getReporterId()+"\t\t"+Data.reports[i].getContent());
+		}
+	}
+}
+
+class Admin extends Employee
+{
+	public Admin()
+	{
+		
+	}
+	public Admin(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	
+	public void modifyEmployeeLevel(String empNo,int newLevel)
+	{
+		if(empNo.equals(Data.staff.getEmpNo()))
+			Data.staff.setEmpLevel(newLevel);
+		else if(empNo.equals(Data.manager.getEmpNo()))
+			Data.manager.setEmpLevel(newLevel);
+		else if(empNo.equals(Data.admin.getEmpNo()))
+			Data.admin.setEmpLevel(newLevel);;
+			
+	}
+	
+	public void displayEmployeeInfo()
+	{
+		System.out.println("普通员工信息如下：");
+		Data.staff.show();
+		System.out.println("部门经理信息如下：");
+		Data.manager.show();
+		System.out.println("管理员信息如下：");
+		Data.admin.show();
+	}
+}
+
+class Menu{
+	Scanner input = new Scanner(System.in);
+	
+	//登录界面OK
+	public void showMenu()
+	{
+		System.out.println("欢迎进入企业人力资源管理系统");
+		System.out.println("\t1.登录系统");
+		System.out.println("\t2.退出系统");
+		System.out.printf("请输入菜单项数字：");//用println在后面键盘输入时容易出现错误
+		//eclipse 光标不会自动移到下一行末尾而是开头，需要手动操作，否则容易出错
+		boolean flag = true;
+		Scanner input = new Scanner(System.in);
+		while(flag)//标志进行while循环
+		{
+			int choice = input.nextInt();
+			switch(choice)
+			{
+				case 1:System.out.printf("请输入员工编号：");
+					String no = input.next();
+					System.out.printf("请输入密码：");
+					String password = input.next();
+					if(no.equals(Data.staff.getEmpNo())&&password.equals(Data.staff.getPassword()))
+						showStaffMenu();
+					else if(no.equals(Data.manager.getEmpNo())&&password.equals(Data.manager.getPassword()))
+						showManangerMenu();
+					else if(no.equals(Data.admin.getEmpNo())&&password.equals(Data.admin.getPassword()))
+						showAdminMenu();
+					else
+					{
+						System.out.println("员工编号或密码不正确！");
+						showMenu();
+					}
+					break;
+				case 2:
+					System.out.println("您退出了系统！");
+					flag = false;//标识符变化才能让退出程序完成
+					break;
+				default:
+					System.out.println("输入选项不正确！");
+					showMenu();
+					break;
+			}
+			if(!flag)
+				break;//在case2中改变标志符号，退出while循环
+		}		
+	}
+	//普通员工的主菜单
+	public void showStaffMenu()
+	{
+		System.out.println("人力资源管理系统————普通员工");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.查看考评信息");
+		System.out.println("\t6.汇报工作");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		boolean flag1 = true;
+		while(flag1)
+		{
+			String str1 = input.next();
+			switch(str1)
+			{
+				case "1":
+					Data.staff.show();
+					showStaffMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.staff.modifypassword(input.next());
+					showStaffMenu();
+					break;
+				case "6":
+					//汇报功能还不能实现
+					Report report = new Report();
+					report.setReportId(Data.reportcount+1);
+					//report.setReporterId(Data.currentEmployee.getEmpNo());
+					//在获取有错误repoterId时提示有空指针异常
+					//System.out.println(Data.currentEmployee.getEmpNo());
+					System.out.println("请输入汇报信息：");
+					String content = input.next();
+					report.setConent(content);
+					Data.staff.addReport(report);
+					System.out.println("汇报完毕！");
+					showStaffMenu();
+					break;
+				case "r":
+				case "R":
+					flag1 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showStaffMenu();
+					break;
+			}
+		}
+		if(!flag1)
+			showMenu();
+	}
+	
+	//部门经理的主菜单
+	public void showManangerMenu()
+	{
+		System.out.println("人力资源管理系统————部门经理");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.考评员工");
+		System.out.println("\t6.查看工作汇报");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		
+		/*boolean flag2 = true;
+		while(flag2)
+		{
+			showStaffMenu();
+			String str1 = input.next();
+			switch(str1)
+			{
+				case "1":
+					Data.staff.show();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.staff.modifypassword(input.next());
+					break;
+				case "6":
+					Report report = new Report();
+					report.setReportId(Data.reportcount+1);
+					report.setReporterId(Data.currentEmployee.getEmpNo());
+					System.out.println("请输入汇报信息：");
+					String content = input.next();
+					report.setConent(content);
+					Data.staff.addReport(report);
+					System.out.println("汇报完毕！");
+					break;
+				case "r":
+				case "R":
+					flag2 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					break;
+			}
+		}
+		if(!flag2)
+			showMenu();*/
+	}
+		
+	//管理员的主菜单
+	public void showAdminMenu()
+	{
+		System.out.println("人力资源管理系统————管理员");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.修改员工角色");
+		System.out.println("\t6.查看员工信息");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+	}
+}
+
+public class StartMenu {
+	public static void main(String[] args)
+	{
+		new Menu().showMenu();
+	}
+}
+//汇报工作的reporterId有错误，部门经理和管理员功能还没实现
+71、退出系统循环有错误在登录完成操作后返回主界面后，再退出系统，不能退出，还是在操作界面上进行选择
+可以把各个显示界面写到一个类里面就进行操作和实现
+管理员修改了员工信息后能查看到信息的变化但是员工的menu界面没有变化
+import java.util.*;
+
+class Employee{
+	private String empNo;
+	private String password;
+	private String empName;
+	private String sex;
+	private String department;
+	private double salary;
+	private int empLevel;//1是管理员，2是部门经理，3是普通员工
+	
+	public Employee()//无参构造方法,方便后面可能出现的子类继承
+	{
+		
+	}
+	//有参构造方法
+	public Employee(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		this.empNo = empNo;
+		this.empName = empName;
+		this.password = password;
+		this.sex = sex;
+		this.department = department;
+		this.salary = salary;
+		this.empLevel = empLevel;
+	}
+	
+	//修改密码
+	public void modifypassword(String newpassword)
+	{
+		this.password = newpassword;
+		System.out.println("修改密码成功！");
+	}
+
+	//显示员工信息
+	public void show()
+	{
+		String position = null;
+		if(empLevel == 1)
+			position = "普通员工";
+		else if(empLevel == 2)
+			position = "部门经理";
+		else
+			position = "管理员";
+		
+		System.out.println("员工编号："+empNo);
+		System.out.println("员工姓名："+empName);
+		System.out.println("员工性别："+sex);
+		System.out.println("员工级别："+position);
+		System.out.println("员工所属部门："+department);
+		System.out.println("员工工资："+salary);
+	}
+	
+	public String getEmpNo()//要进行封装，使用setXXX，getXXX获得私有属性
+	{
+		return empNo;
+	}
+	public void setEmpNo(String empNo)
+	{
+		this.empNo = empNo;
+	}
+	
+	public String getEmpName()
+	{
+		return empName;
+	}
+	public void setEmpName(String empName)
+	{
+		this.empName = empName;
+	}
+	
+	public String getSex()
+	{
+		return sex;
+	}
+	public void setSex(String sex)
+	{
+		this.sex = sex;
+	}
+	
+	public String getDepartment()
+	{
+		return department;
+	}
+	public void setDepartment(String department)
+	{
+		this.department = department;
+	}
+	
+	public double getSalary()
+	{
+		return salary;
+	}
+	public void setSalary(double salary)
+	{
+		this.salary = salary;
+	}
+	
+	public int getEmpLevel()
+	{
+		return empLevel;
+	}
+	public void setEmpLevel(int empLevel)
+	{
+		this.empLevel = empLevel;
+	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+	public void setPassword(String password)
+	{
+		this.password = password;
+	}
+}
+
+class Report
+{
+	private int reportId;
+	private String reporterId;
+	private String content;
+	
+	public Report()
+	{
+		
+	}
+	//有参的构造方法内含report的内容，reportId,reporterId,content
+	public Report(int reportId,String reporterId,String content)
+	{
+		this.reportId = reportId;
+		this.reporterId = reporterId;
+		this.content = content;
+	}
+	public int getReportId()
+	{
+		return reportId;
+	}
+	public void setReportId(int reportId)
+	{
+		this.reportId = reportId;
+	}
+	public String getReporterId()
+	{
+		return reporterId;
+	}
+	public void setReporterId(String reporterId)
+	{
+		this.reporterId = reporterId;
+	}
+	public String getContent()
+	{
+		return content;
+	}
+	public void setContent(String content)
+	{
+		this.content = content;
+	}
+}
+
+class Data
+{
+	public static Employee currentEmployee;//当前登录员工
+	public static Staff staff = new Staff("0001","111","张三","女","销售部",3000.3,1);
+	public static Manager manager = new Manager("0002","222","李四","男","销售部",4000.4,2);
+	public static Admin admin = new Admin("0003","333","王五","男","销售部",5000.5,3);
+	public static int reportcount = 0;//初始化汇报数目，也就是之后reportId
+	public static Report[] reports = new Report[1000];//声明并创建存储员工汇报内容的数组
+	
+	//将数组元素初始化
+	public static void init()
+	{
+		for(int i = 0;i < reports.length;i++)
+		{
+			reports[i] = new Report();
+		}
+	}
+}
+
+class Staff extends Employee
+{
+	public Staff()//继承父类的无参构造方法
+	{
+		super();
+	}
+	
+	public Staff(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//汇报工作
+	public void addReport(Report report)//输入为Report 类型的
+	{
+		Data.reports[Data.reportcount++] = report;
+	}
+}
+
+class Manager extends Employee
+{
+	public Manager()
+	{
+		super();
+	}
+	
+	public Manager(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//查看员工汇报工作
+	public void displayReports()
+	{
+		System.out.println("汇报工作如下：");
+		System.out.println("汇报编号"+"\t"+"员工编号"+"\t"+"汇报内容");
+		for(int i = 0;i < Data.reportcount;i++)
+		{
+			System.out.println(Data.reports[i].getReportId()+"\t"+
+		       Data.reports[i].getReporterId()+"\t\t"+Data.reports[i].getContent());
+		}
+	}
+}
+
+class Admin extends Employee
+{
+	public Admin()
+	{
+		
+	}
+	public Admin(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//修改员工级别
+	public void modifyEmployeeLevel(String empNo,int newLevel)
+	{
+		if(empNo.equals(Data.staff.getEmpNo()))
+			Data.staff.setEmpLevel(newLevel);
+		else if(empNo.equals(Data.manager.getEmpNo()))
+			Data.manager.setEmpLevel(newLevel);
+		else if(empNo.equals(Data.admin.getEmpNo()))
+			Data.admin.setEmpLevel(newLevel);;
+			
+	}
+	//显示员工信息
+	public void displayEmployeeInfo()
+	{
+		System.out.println("普通员工信息如下：");
+		Data.staff.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+		System.out.println("部门经理信息如下：");
+		Data.manager.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+		System.out.println("管理员信息如下：");
+		Data.admin.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+	}
+}
+
+class Menu{
+	Scanner input = new Scanner(System.in);
+	
+	//登录界面OK
+	public void showMenu()
+	{
+		System.out.println("欢迎进入企业人力资源管理系统");
+		System.out.println("\t1.登录系统");
+		System.out.println("\t2.退出系统");
+		System.out.printf("请输入菜单项数字：");//用println在后面键盘输入时容易出现错误
+		//eclipse 光标不会自动移到下一行末尾而是开头，需要手动操作，否则容易出错	
+		//Data.init();
+		boolean flag = true;
+		Scanner input = new Scanner(System.in);
+		while(flag)//标志进行while循环
+		{
+			int choice = input.nextInt();
+			switch(choice)
+			{
+				case 1:System.out.printf("请输入员工编号：");
+					String no = input.next();
+					System.out.printf("请输入密码：");
+					String password = input.next();
+					if(no.equals(Data.staff.getEmpNo())&&password.equals(Data.staff.getPassword()))
+						showStaffMenu();
+					else if(no.equals(Data.manager.getEmpNo())&&password.equals(Data.manager.getPassword()))
+						showManangerMenu();
+					else if(no.equals(Data.admin.getEmpNo())&&password.equals(Data.admin.getPassword()))
+						showAdminMenu();
+					else
+					{
+						System.out.println("员工编号或密码不正确！");
+						showMenu();
+					}
+					break;
+				case 2:
+					System.out.println("您退出了系统！");
+					flag = false;//标识符变化才能让退出程序完成
+					break;
+				default:
+					System.out.println("输入选项不正确！");
+					showMenu();
+					break;
+			}
+			if(!flag)
+				break;//在case2中改变标志符号，退出while循环
+		}
+	}
+	//普通员工的主菜单
+	public void showStaffMenu()
+	{
+		System.out.println("人力资源管理系统————普通员工");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.查看考评信息");
+		System.out.println("\t6.汇报工作");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		boolean flag1 = true;
+		while(flag1)
+		{
+			String str1 = input.next();
+			switch(str1)
+			{
+				case "1":
+					Data.staff.show();
+					showStaffMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.staff.modifypassword(input.next());
+					showStaffMenu();
+					break;
+				case "6":
+					Data.currentEmployee = Data.staff;
+					Report huibao = new Report();
+					huibao.setReportId(Data.reportcount+1);
+					huibao.setReporterId(Data.currentEmployee.getEmpNo());
+					//只能在staff只有一个员工的时候实现，否则要改进
+					//怎样把当前员工的信息存入Data.currentEmployee？？？
+					//有错误repoterId时提示有空指针异常,还没有给currentEmployee赋数据
+					System.out.println("请输入汇报信息：");
+					String content = input.next();
+					huibao.setContent(content);
+					Data.staff.addReport(huibao);
+					System.out.println("汇报完毕！");
+					showStaffMenu();
+					break;
+				case "r":
+				case "R":
+					flag1 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showStaffMenu();
+					break;
+			}
+		}
+		if(!flag1)
+			showMenu();
+	}
+	
+	//部门经理的主菜单
+	public void showManangerMenu()
+	{
+		System.out.println("人力资源管理系统————部门经理");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.考评员工");
+		System.out.println("\t6.查看工作汇报");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		boolean flag2 = true;
+		while(flag2)
+		{
+			String str2 = input.next();
+			switch(str2)
+			{
+				case "1":
+					Data.manager.show();
+					showManangerMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.manager.modifypassword(input.next());
+					showManangerMenu();
+					break;
+				case "6":
+					Data.manager.displayReports();
+					System.out.println("查看完毕！");
+					showManangerMenu();
+					break;
+				case "r":
+				case "R":
+					flag2 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showManangerMenu();
+					break;
+			}
+		}
+		if(!flag2)
+			showMenu();
+	}
+		
+	//管理员的主菜单
+	public void showAdminMenu()
+	{
+		System.out.println("人力资源管理系统————管理员");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.修改员工级别");
+		System.out.println("\t6.查看员工信息");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		boolean flag3 = true;
+		while(flag3)
+		{
+			String str3 = input.next();
+			switch(str3)
+			{
+				case "1":
+					Data.admin.show();
+					showAdminMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.admin.modifypassword(input.next());
+					showAdminMenu();
+					break;
+				case "5":
+					System.out.println("请输入要更改的员工编号：");
+					String empNo1 = input.next();
+					System.out.println("请输入新的员工级别(1.普通员工 2.部门经理 3.管理员)");
+					int newLevel = input.nextInt();
+					Data.admin.modifyEmployeeLevel(empNo1, newLevel);
+					System.out.println("修改完毕！");
+					showAdminMenu();
+					break;
+				case "6":
+					Data.admin.displayEmployeeInfo();
+					System.out.println("查看完毕！");
+					showAdminMenu();
+					break;
+				case "r":
+				case "R":
+					flag3 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showAdminMenu();
+					break;
+			}
+		}
+		if(!flag3)
+			showMenu();
+	}
+}
+
+public class StartMenu {
+	public static void main(String[] args)
+	{
+		new Menu().showMenu();
+	}
+}
+72、
+import java.util.*;
+
+class Employee{
+	private String empNo;
+	private String password;
+	private String empName;
+	private String sex;
+	private String department;
+	private double salary;
+	private int empLevel;//1是管理员，2是部门经理，3是普通员工
+	
+	public Employee()//无参构造方法,方便后面可能出现的子类继承
+	{
+		
+	}
+	//有参构造方法
+	public Employee(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		this.empNo = empNo;
+		this.empName = empName;
+		this.password = password;
+		this.sex = sex;
+		this.department = department;
+		this.salary = salary;
+		this.empLevel = empLevel;
+	}
+	
+	//修改密码
+	public void modifypassword(String newpassword)
+	{
+		this.password = newpassword;
+		System.out.println("修改密码成功！");
+	}
+
+	//显示员工信息
+	public void show()
+	{
+		String position = null;
+		if(empLevel == 1)
+			position = "普通员工";
+		else if(empLevel == 2)
+			position = "部门经理";
+		else
+			position = "管理员";
+		
+		System.out.println("员工编号："+empNo);
+		System.out.println("员工姓名："+empName);
+		System.out.println("员工性别："+sex);
+		System.out.println("员工级别："+position);
+		System.out.println("员工所属部门："+department);
+		System.out.println("员工工资："+salary);
+	}
+	
+	public String getEmpNo()//要进行封装，使用setXXX，getXXX获得私有属性
+	{
+		return empNo;
+	}
+	public void setEmpNo(String empNo)
+	{
+		this.empNo = empNo;
+	}
+	
+	public String getEmpName()
+	{
+		return empName;
+	}
+	public void setEmpName(String empName)
+	{
+		this.empName = empName;
+	}
+	
+	public String getSex()
+	{
+		return sex;
+	}
+	public void setSex(String sex)
+	{
+		this.sex = sex;
+	}
+	
+	public String getDepartment()
+	{
+		return department;
+	}
+	public void setDepartment(String department)
+	{
+		this.department = department;
+	}
+	
+	public double getSalary()
+	{
+		return salary;
+	}
+	public void setSalary(double salary)
+	{
+		this.salary = salary;
+	}
+	
+	public int getEmpLevel()
+	{
+		return empLevel;
+	}
+	public void setEmpLevel(int empLevel)
+	{
+		this.empLevel = empLevel;
+	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+	public void setPassword(String password)
+	{
+		this.password = password;
+	}
+}
+
+class Report
+{
+	private int reportId;
+	private String reporterId;
+	private String content;
+	
+	public Report()
+	{
+		
+	}
+	//有参的构造方法内含report的内容，reportId,reporterId,content
+	public Report(int reportId,String reporterId,String content)
+	{
+		this.reportId = reportId;
+		this.reporterId = reporterId;
+		this.content = content;
+	}
+	public int getReportId()
+	{
+		return reportId;
+	}
+	public void setReportId(int reportId)
+	{
+		this.reportId = reportId;
+	}
+	public String getReporterId()
+	{
+		return reporterId;
+	}
+	public void setReporterId(String reporterId)
+	{
+		this.reporterId = reporterId;
+	}
+	public String getContent()
+	{
+		return content;
+	}
+	public void setContent(String content)
+	{
+		this.content = content;
+	}
+}
+
+class Data
+{
+	public static Employee currentEmployee;//当前登录员工
+	public static Staff staff = new Staff("0001","111","张三","女","销售部",3000.3,1);
+	public static Manager manager = new Manager("0002","222","李四","男","销售部",4000.4,2);
+	public static Admin admin = new Admin("0003","333","王五","男","销售部",5000.5,3);
+	public static int reportcount = 0;//初始化汇报数目，也就是之后reportId
+	public static Report[] reports = new Report[1000];//声明并创建存储员工汇报内容的数组
+	
+	//将数组元素初始化
+	public static void init()
+	{
+		for(int i = 0;i < reports.length;i++)
+		{
+			reports[i] = new Report();
+		}
+	}
+}
+
+class Staff extends Employee
+{
+	public Staff()//继承父类的无参构造方法
+	{
+		super();
+	}
+	
+	public Staff(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//汇报工作
+	public void addReport(Report report)//输入为Report 类型的
+	{
+		Data.reports[Data.reportcount++] = report;
+	}
+}
+
+class Manager extends Employee
+{
+	public Manager()
+	{
+		super();
+	}
+	
+	public Manager(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//查看员工汇报工作
+	public void displayReports()
+	{
+		System.out.println("汇报工作如下：");
+		System.out.println("汇报编号"+"\t"+"员工编号"+"\t"+"汇报内容");
+		for(int i = 0;i < Data.reportcount;i++)
+		{
+			System.out.println(Data.reports[i].getReportId()+"\t"+
+		       Data.reports[i].getReporterId()+"\t"+Data.reports[i].getContent());
+		}
+	}
+}
+
+class Admin extends Employee
+{
+	public Admin()
+	{
+		
+	}
+	public Admin(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//修改员工级别
+	public void modifyEmployeeLevel(String empNo,int newLevel)
+	{
+		if(empNo.equals(Data.staff.getEmpNo()))
+			Data.staff.setEmpLevel(newLevel);
+		else if(empNo.equals(Data.manager.getEmpNo()))
+			Data.manager.setEmpLevel(newLevel);
+		else if(empNo.equals(Data.admin.getEmpNo()))
+			Data.admin.setEmpLevel(newLevel);;
+			
+	}
+	//显示员工信息
+	public void displayEmployeeInfo()
+	{
+		System.out.println("编号为"+Data.staff.getEmpNo()+"的员工信息如下：");
+		Data.staff.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+		System.out.println("编号为"+Data.manager.getEmpNo()+"的员工信息如下：");
+		Data.manager.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+		System.out.println("编号为"+Data.admin.getEmpNo()+"的员工信息如下：");
+		Data.admin.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+	}
+}
+
+class Menu{
+	Scanner input = new Scanner(System.in);
+	
+	//登录界面OK
+	public void showMenu()
+	{
+		System.out.println("欢迎进入企业人力资源管理系统");
+		System.out.println("\t1.登录系统");
+		System.out.println("\t2.退出系统");
+		System.out.printf("请输入菜单项数字：");//用println在后面键盘输入时容易出现错误
+		//eclipse 光标不会自动移到下一行末尾而是开头，需要手动操作，否则容易出错	
+	}
+	//普通员工的主菜单
+	public void showStaffMenu()
+	{
+		System.out.println("人力资源管理系统————普通员工");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.查看考评信息");
+		System.out.println("\t6.汇报工作");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		
+		boolean flag1 = true;
+		while(flag1)
+		{
+			String str1 = input.next();
+			switch(str1)
+			{
+				case "1":
+					Data.staff.show();
+					showStaffMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.staff.modifypassword(input.next());
+					showStaffMenu();
+					break;
+				case "6":
+					Report huibao = new Report();
+					huibao.setReportId(Data.reportcount+1);
+					huibao.setReporterId(Data.currentEmployee.getEmpNo());
+					System.out.println("请输入汇报信息：");
+					String content = input.next();
+					huibao.setContent(content);
+					Data.staff.addReport(huibao);
+					System.out.println("汇报完毕！");
+					showStaffMenu();
+					break;
+				case "r":
+				case "R":
+					flag1 = false;//循环标识符变化退出while循环
+					showMenu();
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showStaffMenu();
+					break;
+			}
+			if(!flag1)
+				break;//应该是返回后接着执行showmenu之后的键入操作，是在menu菜单下操作的，但实际还是在staff菜单下进行的操作！
+		}
+	}
+	
+	//部门经理的主菜单
+	public void showManangerMenu()
+	{
+		System.out.println("人力资源管理系统————部门经理");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.考评员工");
+		System.out.println("\t6.查看工作汇报");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		boolean flag2 = true;
+		while(flag2)
+		{
+			String str2 = input.next();
+			switch(str2)
+			{
+				case "1":
+					Data.manager.show();
+					showManangerMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.manager.modifypassword(input.next());
+					showManangerMenu();
+					break;
+				case "6":
+					Data.manager.displayReports();
+					System.out.println("查看完毕！");
+					showManangerMenu();
+					break;
+				case "r":
+				case "R":
+					flag2 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showManangerMenu();
+					break;
+			}
+		}
+		if(!flag2)
+			showMenu();
+	}
+		
+	//管理员的主菜单
+	public void showAdminMenu()
+	{
+		System.out.println("人力资源管理系统————管理员");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资等级");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.修改员工级别");
+		System.out.println("\t6.查看员工信息");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		boolean flag3 = true;
+		while(flag3)
+		{
+			String str3 = input.next();
+			switch(str3)
+			{
+				case "1":
+					Data.admin.show();
+					showAdminMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.admin.modifypassword(input.next());
+					showAdminMenu();
+					break;
+				case "5":
+					System.out.println("请输入要更改的员工编号：");
+					String empNo1 = input.next();
+					System.out.println("请输入新的员工级别(1.普通员工 2.部门经理 3.管理员)");
+					int newLevel = input.nextInt();
+					Data.admin.modifyEmployeeLevel(empNo1, newLevel);
+					System.out.println("修改完毕！");
+					showAdminMenu();
+					break;
+				case "6":
+					Data.admin.displayEmployeeInfo();
+					System.out.println("查看完毕！");
+					showAdminMenu();
+					break;
+				case "r":
+				case "R":
+					flag3 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showAdminMenu();
+					break;
+			}
+		}
+		if(!flag3)
+			showMenu();
+	}
+}
+
+public class StartMenu {
+	public static void main(String[] args)
+	{
+		Data.init();//数据初始化
+		Menu menu = new Menu();
+		menu.showMenu();
+		
+		@SuppressWarnings("resource")
+		Scanner input = new Scanner(System.in);
+		boolean flag = true;
+		while(flag)//标志进行while循环
+		{
+			int choice = input.nextInt();
+			switch(choice)
+			{
+				case 1:
+					System.out.printf("请输入员工编号：");
+					String no = input.next();
+					System.out.printf("请输入密码：");
+					String password = input.next();
+					if(no.equals(Data.staff.getEmpNo())&&password.equals(Data.staff.getPassword()))
+					{
+						Data.currentEmployee = Data.staff;
+						menu.showStaffMenu();
+					}
+					else if(no.equals(Data.manager.getEmpNo())&&password.equals(Data.manager.getPassword()))
+					{
+						Data.currentEmployee = Data.manager;
+						menu.showManangerMenu();
+					}
+					else if(no.equals(Data.admin.getEmpNo())&&password.equals(Data.admin.getPassword()))
+					{
+						Data.currentEmployee = Data.admin;
+						menu.showAdminMenu();
+					}
+					else
+					{
+						System.out.println("员工编号或密码不正确！");
+						menu.showMenu();
+					}
+					break;
+				case 2:
+					System.out.println("您退出了系统！");
+					flag = false;//标识符变化才能让退出程序完成
+					break;
+				default:
+					System.out.println("输入选项不正确！");
+					menu.showMenu();
+					break;
+			}
+			if(!flag)
+				break;//在case2中改变标志符号，退出while循环
+		}
+//登录一次完成操作后，再返回登录界面登录后直接成了显示员工信息的1而不是登录
+//同样2也是修改密码操作而不是退出系统
+//在该界面上再输入r返回登录界面就正确，能实现登录和退出功能
+//也就是需要两次返回操作才行
+//如果只登录，选择r的话还是可以的，但如果选择任意的数字再选择R就需要返回两次才可以进行退出，登录操作
+	}
+}
+73、修正版，成功的改进了72版本的问题，登陆完成操作输入R返回后能重新登录或退出系统直接结束程序
+import java.util.*;
+
+abstract class Employee{
+	private String empNo;
+	private String password;
+	private String empName;
+	private String sex;
+	private String department;
+	private double salary;
+	private int empLevel;//1是管理员，2是部门经理，3是普通员工
+	public abstract void displaySalaryRange();
+	public abstract void doWork();//定义抽象方法，查看工资范围和工作内容
+	//因为是企业员工共同拥有的内容，而不同级别的员工所对应的内容并不相同，因此只能定义为抽象方法
+	//而抽象方法可以只声明，子类在继承父类的方法时可以再定义
+	
+	public Employee()//无参构造方法,方便后面可能出现的子类继承
+	{
+		
+	}
+	//有参构造方法
+	public Employee(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		this.empNo = empNo;
+		this.empName = empName;
+		this.password = password;
+		this.sex = sex;
+		this.department = department;
+		this.salary = salary;
+		this.empLevel = empLevel;
+	}
+	
+	//修改密码
+	public void modifypassword(String newpassword)
+	{
+		this.password = newpassword;
+		System.out.println("修改密码成功！");
+	}
+
+	//显示员工信息
+	public void show()
+	{
+		String position = null;
+		if(empLevel == 1)
+			position = "普通员工";
+		else if(empLevel == 2)
+			position = "部门经理";
+		else
+			position = "管理员";
+		
+		System.out.println("员工编号："+empNo);
+		System.out.println("员工姓名："+empName);
+		System.out.println("员工性别："+sex);
+		System.out.println("员工级别："+position);
+		System.out.println("员工所属部门："+department);
+		System.out.println("员工工资："+salary);
+	}
+	
+	public String getEmpNo()//要进行封装，使用setXXX，getXXX获得私有属性
+	{
+		return empNo;
+	}
+	public void setEmpNo(String empNo)
+	{
+		this.empNo = empNo;
+	}
+	
+	public String getEmpName()
+	{
+		return empName;
+	}
+	public void setEmpName(String empName)
+	{
+		this.empName = empName;
+	}
+	
+	public String getSex()
+	{
+		return sex;
+	}
+	public void setSex(String sex)
+	{
+		this.sex = sex;
+	}
+	
+	public String getDepartment()
+	{
+		return department;
+	}
+	public void setDepartment(String department)
+	{
+		this.department = department;
+	}
+	
+	public double getSalary()
+	{
+		return salary;
+	}
+	public void setSalary(double salary)
+	{
+		this.salary = salary;
+	}
+	
+	public int getEmpLevel()
+	{
+		return empLevel;
+	}
+	public void setEmpLevel(int empLevel)
+	{
+		this.empLevel = empLevel;
+	}
+	
+	public String getPassword()
+	{
+		return password;
+	}
+	public void setPassword(String password)
+	{
+		this.password = password;
+	}
+}
+
+class Report
+{
+	private int reportId;
+	private String reporterId;
+	private String content;
+	
+	public Report()
+	{
+		
+	}
+	//有参的构造方法内含report的内容，reportId,reporterId,content
+	public Report(int reportId,String reporterId,String content)
+	{
+		this.reportId = reportId;
+		this.reporterId = reporterId;
+		this.content = content;
+	}
+	public int getReportId()
+	{
+		return reportId;
+	}
+	public void setReportId(int reportId)
+	{
+		this.reportId = reportId;
+	}
+	public String getReporterId()
+	{
+		return reporterId;
+	}
+	public void setReporterId(String reporterId)
+	{
+		this.reporterId = reporterId;
+	}
+	public String getContent()
+	{
+		return content;
+	}
+	public void setContent(String content)
+	{
+		this.content = content;
+	}
+}
+
+class Data
+{
+	public static Employee currentEmployee;//当前登录员工
+	public static Staff staff = new Staff("0001","111","张三","女","销售部",3000.3,1);
+	public static Manager manager = new Manager("0002","222","李四","男","销售部",4000.4,2);
+	public static Admin admin = new Admin("0003","333","王五","男","销售部",5000.5,3);
+	public static int reportcount = 0;//初始化汇报数目，也就是之后reportId
+	public static Report[] reports = new Report[1000];//声明并创建存储员工汇报内容的数组
+	
+	//将数组元素初始化
+	public static void init()
+	{
+		for(int i = 0;i < reports.length;i++)
+		{
+			reports[i] = new Report();
+		}
+	}
+}
+
+class Staff extends Employee//继承了父类的抽象方法，必须都重写，否则要定义为抽象类
+{
+	public Staff()//继承父类的无参构造方法
+	{
+		super();
+	}
+	
+	public Staff(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//汇报工作
+	public void addReport(Report report)//输入为Report 类型的
+	{
+		Data.reports[Data.reportcount++] = report;
+	}
+	//显示工资范围
+	public void displaySalaryRange()
+	{
+		System.out.println("您的工资范围为：3000~7000");
+	}
+	//今日工作内容
+	public void doWork()
+	{
+		System.out.println(Data.staff.getEmpName()+"的今日工作内容是：");
+		System.out.println("\t回访客户\t");
+	}
+}
+
+class Manager extends Employee
+{
+	public Manager()
+	{
+		super();
+	}
+	
+	public Manager(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//查看员工汇报工作
+	public void displayReports()
+	{
+		System.out.println("汇报工作如下：");
+		System.out.println("汇报编号"+"\t"+"员工编号"+"\t"+"汇报内容");
+		for(int i = 0;i < Data.reportcount;i++)
+		{
+			System.out.println(Data.reports[i].getReportId()+"\t"+
+		       Data.reports[i].getReporterId()+"\t"+Data.reports[i].getContent());
+		}
+	}
+	//显示工资范围
+	public void displaySalaryRange()
+	{
+		System.out.println("您的工资范围为：6000~10000");
+	}
+	//今日工作内容
+	public void doWork()
+	{
+		System.out.println(Data.manager.getEmpName()+"的今日工作内容是：");
+		System.out.println("\t制定计划\t");
+	}
+}
+
+class Admin extends Employee
+{
+	public Admin()
+	{
+		
+	}
+	public Admin(String empNo,String password,String empName,String sex,
+			String department,double salary,int empLevel)
+	{
+		super(empNo,password,empName,sex,department,salary,empLevel);
+	}
+	//修改员工级别
+	public void modifyEmployeeLevel(String empNo,int newLevel)
+	{
+		if(empNo.equals(Data.staff.getEmpNo()))
+			Data.staff.setEmpLevel(newLevel);
+		else if(empNo.equals(Data.manager.getEmpNo()))
+			Data.manager.setEmpLevel(newLevel);
+		else if(empNo.equals(Data.admin.getEmpNo()))
+			Data.admin.setEmpLevel(newLevel);;
+			
+	}
+	//显示员工信息
+	public void displayEmployeeInfo()
+	{
+		System.out.println("编号为"+Data.staff.getEmpNo()+"的员工信息如下：");
+		Data.staff.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+		System.out.println("编号为"+Data.manager.getEmpNo()+"的员工信息如下：");
+		Data.manager.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+		System.out.println("编号为"+Data.admin.getEmpNo()+"的员工信息如下：");
+		Data.admin.show();
+		for(int i = 0;i < 15;i++)
+		{
+			System.out.printf("*");
+		}
+		System.out.println( );
+	}
+	//显示工资范围
+	public void displaySalaryRange()
+	{
+		System.out.println("您的工资范围为：4000~8000");
+	}
+	//今日工作内容
+	public void doWork()
+	{
+		System.out.println(Data.admin.getEmpName()+"的今日工作内容是：");
+		System.out.println("\t修改员工级别\t");
+	}
+}
+
+class Menu{
+	Scanner input = new Scanner(System.in);
+	
+	//登录界面OK
+	public void showMenu()
+	{
+		System.out.println("欢迎进入企业人力资源管理系统");
+		System.out.println("\t1.登录系统");
+		System.out.println("\t2.退出系统");
+		System.out.printf("请输入菜单项数字：");//用println在后面键盘输入时容易出现错误
+		//eclipse 光标不会自动移到下一行末尾而是开头，需要手动操作，否则容易出错	
+	}
+	//普通员工的主菜单
+	public void showStaffMenu()
+	{
+		System.out.println("人力资源管理系统————普通员工");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资范围");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.查看考评信息");
+		System.out.println("\t6.汇报工作");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		
+		boolean flag1 = true;
+		while(flag1)
+		{
+			String str1 = input.next();
+			switch(str1)
+			{
+				case "1":
+					Data.staff.show();
+					showStaffMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.staff.modifypassword(input.next());
+					showStaffMenu();
+					break;
+				case "3":
+					Data.staff.displaySalaryRange();
+					showStaffMenu();
+					break;
+				case "4":
+					Data.staff.doWork();
+					showStaffMenu();
+					break;
+				case "6":
+					Report huibao = new Report();
+					huibao.setReportId(Data.reportcount+1);
+					huibao.setReporterId(Data.currentEmployee.getEmpNo());
+					System.out.println("请输入汇报信息：");
+					String content = input.next();
+					huibao.setContent(content);
+					Data.staff.addReport(huibao);
+					System.out.println("汇报完毕！");
+					showStaffMenu();
+					break;
+				case "r":
+				case "R":
+					flag1 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showStaffMenu();
+					break;
+			}
+			if(!flag1)
+				showMenu();
+			break;//应该是返回后接着执行showmenu之后的键入操作
+			//是在menu菜单下操作的，但实际还是在staff菜单下进行的操作！
+		}
+	}
+	
+	//部门经理的主菜单
+	public void showManangerMenu()
+	{
+		System.out.println("人力资源管理系统————部门经理");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资范围");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.考评员工");
+		System.out.println("\t6.查看工作汇报");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		boolean flag2 = true;
+		while(flag2)
+		{
+			String str2 = input.next();
+			switch(str2)
+			{
+				case "1":
+					Data.manager.show();
+					showManangerMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.manager.modifypassword(input.next());
+					showManangerMenu();
+					break;
+				case "3":
+					Data.manager.displaySalaryRange();
+					showStaffMenu();
+					break;
+				case "4":
+					Data.manager.doWork();
+					showStaffMenu();
+					break;
+				case "6":
+					Data.manager.displayReports();
+					System.out.println("查看完毕！");
+					showManangerMenu();
+					break;
+				case "r":
+				case "R":
+					flag2 = false;//循环标识符变化退出while循环
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showManangerMenu();
+					break;
+			}
+			if(!flag2)
+				showMenu();
+			break;
+		}
+		
+	}
+		
+	//管理员的主菜单
+	public void showAdminMenu()
+	{
+		System.out.println("人力资源管理系统————管理员");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("\t1.查看个人信息");
+		System.out.println("\t2.修改密码");
+		System.out.println("\t3.查看工资范围");
+		System.out.println("\t4.今日工作内容");
+		System.out.println("\t5.修改员工级别");
+		System.out.println("\t6.查看员工信息");
+		for(int i = 0;i < 27;i++)
+			System.out.printf("*");
+		System.out.println( );
+		System.out.println("请输入菜单项数字或R/r返回上一菜单：");
+		boolean flag3 = true;
+		while(flag3)
+		{
+			String str3 = input.next();
+			switch(str3)
+			{
+				case "1":
+					Data.admin.show();
+					showAdminMenu();
+					break;
+				case "2":
+					System.out.printf("请输入新密码：");
+					Data.admin.modifypassword(input.next());
+					showAdminMenu();
+					break;
+				case "3":
+					Data.admin.displaySalaryRange();
+					showStaffMenu();
+					break;
+				case "4":
+					Data.admin.doWork();
+					showStaffMenu();
+					break;
+				case "5":
+					System.out.println("请输入要更改的员工编号：");
+					String empNo1 = input.next();
+					System.out.println("请输入新的员工级别(1.普通员工 2.部门经理 3.管理员)");
+					int newLevel = input.nextInt();
+					Data.admin.modifyEmployeeLevel(empNo1, newLevel);
+					System.out.println("修改完毕！");
+					showAdminMenu();
+					break;
+				case "6":
+					Data.admin.displayEmployeeInfo();
+					System.out.println("查看完毕！");
+					showAdminMenu();
+					break;
+				case "r":
+				case "R":
+					flag3 = false;//循环标识符变化退出while循环
+					//showMenu();
+					break;
+				default:
+					System.out.println("/尚未实现该功能/请输入正确的选项！");
+					showAdminMenu();
+					break;
+			}
+			if(!flag3)
+				showMenu();
+			break;	
+		}
+	}
+}
+
+public class StartMenu {
+	public static void main(String[] args)
+	{
+		Data.init();//数据初始化
+		Menu menu = new Menu();
+		menu.showMenu();
+		
+		@SuppressWarnings("resource")
+		Scanner input = new Scanner(System.in);
+		boolean flag = true;
+		while(flag)//标志进行while循环
+		{
+			int choice = input.nextInt();
+			switch(choice)
+			{
+				case 1:
+					System.out.printf("请输入员工编号：");
+					String no = input.next();
+					System.out.printf("请输入密码：");
+					String password = input.next();
+					if(no.equals(Data.staff.getEmpNo())&&password.equals(Data.staff.getPassword()))
+					{
+						Data.currentEmployee = Data.staff;
+						menu.showStaffMenu();
+					}
+					else if(no.equals(Data.manager.getEmpNo())&&password.equals(Data.manager.getPassword()))
+					{
+						Data.currentEmployee = Data.manager;
+						menu.showManangerMenu();
+					}
+					else if(no.equals(Data.admin.getEmpNo())&&password.equals(Data.admin.getPassword()))
+					{
+						Data.currentEmployee = Data.admin;
+						menu.showAdminMenu();
+					}
+					else
+					{
+						System.out.println("员工编号或密码不正确！");
+						menu.showMenu();
+					}
+					break;
+				case 2:
+					System.out.println("您退出了系统！");
+					flag = false;//标识符变化才能让退出程序完成
+					break;
+				default:
+					System.out.println("输入选项不正确！");
+					menu.showMenu();
+					break;
+			}
+			if(!flag)
+				//System.out.println("1111");//if只能管一个语句，所以下面的break是都会执行的
+				break;//在case2中改变标志符号，退出while循环
+		}
+	}
+}
+74、
